@@ -66,8 +66,8 @@
 %
 % The title of the thesis
 %
-\titleEn{Recursive Function Definitions in Static Dataflow Graphs and their implementation in Tensorflow}
-\titleGr{Αναδρομικοί ορισμοί συναρτήσεων σε στατικούς dataflow γράφους και η υλοποίηση τους στο Tensorflow}
+\titleEn{Recursive Function Definitions in Static Dataflow Graphs and their implementation in TensorFlow}
+\titleGr{Αναδρομικοί ορισμοί συναρτήσεων σε στατικούς dataflow γράφους και η υλοποίηση τους στο TensorFlow}
 
 %
 % Month followed by Year
@@ -176,14 +176,14 @@ The rest of the thesis is organized as follows:
 
 \textit{Future work} discusses ideas that could possibly extend and improve our current work.
 
-\textit{Evaluation} presents the performing results that occurred from the comparison of the two approaches (dynamic vs static one).
+\textit{Evaluation} presents the performance results that occurred from the comparison of the two approaches (dynamic vs static one).
 
 \textit{Conclusions} provides review on the results and some final conclusions
 
 
 \chapter{BACKGROUND}
     \section{Dataflow Programming Paradigm}
-A brief introduction of the dataflow computational model has already been given in previous sections. However, it is mandatory to provide a more formal and detailed one so that the content of this thesis is fully comprehended by those who are less familiar with the concept.
+A brief introduction of the dataflow computational model has already been given in the previous section. However, it is mandatory to provide a more formal and detailed one so that the content of this thesis is fully comprehended by those who are less familiar with the concept.
 
 Dataflow programming paradigm suggests that the set of computations that need to take place in order to carry out a task is specified as a directed, possibly cyclic graph. In these dataflow graphs the nodes represent the computations and the edges represent the data dependencies. The execution of a node is triggered by the arrival of data at all its inputs. That means, that, at any given moment, there can be multiple nodes that are ready to “fire” and execute in parallel. This program representation captures and depicts all the existing data interdependencies and allows for the dataflow execution model to adopt an instruction ordering policy that exploits the full parallelism potential that is inherent in the program. This set of dependencies comprises the minimum number of ordering constraints that the execution model needs to respect in order to generate the correct, expected results. [?]
 
@@ -268,7 +268,7 @@ These operators, as well as their semantics, are described below:
 
     \item \textit{\textbf{Enter:}} TensorFlow introduces the concept of "frames", which is nothing but a way for describing the context under which a set of computations, composing the body of an iterative construct, will actually take place. Frames are groups of node-instances that are identified by the same shared tag and execute only once under that context. Enter is, essentially, a context-switching operator that forwards its input to a child frame. It is possible that more than one Enter operators may send their inputs to the same frame and in that case only the first one will take the responsibility of creating and initializing it.
 
-    \item \textit{\textbf{NextIteration:}} It is there to create the graph-cycle needed in iteration, in order to express the re-triggering of a while-body's execution. It is similar to the Enter operator, as it also forwards its input to a new, uniquely identified ccontext. Their difference essentialy lies in the way those two operators update the tags of their inputs.
+    \item \textit{\textbf{NextIteration:}} It is there to create the graph-cycle needed in iteration, in order to express the re-triggering of a while-body's execution. It is similar to the Enter operator, as it also forwards its input to a new, uniquely identified context. Their difference essentialy lies in the way those two operators update the tags of their inputs.
 
     \item \textit{\textbf{Exit:}} It  is responsible for revoking the actions of the corresponding Enter operator, by forwarding its input to the outer-frame.
  Again, multiple "Exit" operators may exist inside the current-frame, so the last of them that is being triggered is also taking the responsibility of destroying the frame in which it belongs.
@@ -278,7 +278,7 @@ These operators, as well as their semantics, are described below:
 In fact, for reasons that concern the support of distributed execution and will be better explained in the following sections,  the data is actually being sent to both branches, equally, 
 except that, the correct output is forwarding the propagated data as "alive" and the wrong one as "dead", which is a phenomenon inofficially described as "deadness propagation".
 
-    \item \textit{\textbf{Merge:}} It goes as a pair with the Switch operator and is added to the place where the two branches join, in order to collect the if-else' s generated output. It expects two inputs, of which only one will be valid and forwarded, the one generated by the taken-branch. Merge operator, however, is playing another, significant role in the representation of iterative constructs, i.e. while loops. It is placed as a successor to all the existing Enter/NextIteration operators, so that it can distinguish between the first time we execute the body of a while loop and all the following ones. That is, so that  it will always provide the correct input to the while's body-subgraph. \\\\\\\\\\\
+    \item \textit{\textbf{Merge:}} It goes as a pair with the Switch operator and is added to the place where the two branches join, in order to collect the if-else' s generated output. It expects two inputs, of which only one will be valid and forwarded, the one generated by the taken-branch. Merge operator, however, is playing another, significant role in the representation of iterative constructs, i.e. while loops. It is placed as a successor to all the existing Enter/NextIteration operators, so that it can distinguish between the first time we execute the body of a while loop and all the following ones. That is, so that  it will always provide the correct input to the while's body-subgraph. \\\\\\\\
 
     \end{itemize}
 
@@ -294,9 +294,9 @@ except that, the correct output is forwarding the propagated data as "alive" and
 \caption{ Evaluation rules for control-flow operators in TensorFlow}
 \end{figure}
 
-Figures \textit{\textbf{2.2}}, \textit{\textbf{2.3}} and \textit{\textbf{2.4}} can be found in the "Dynamic Control Flow in Large-Scale Machine Learning" paper [?] where the dynamic control flow support in TensorFlow is being discussed in much more detail. \\\\
+Figures \textit{\textbf{2.2}}, \textit{\textbf{2.3}} and \textit{\textbf{2.4}} can be found in the "Dynamic Control Flow in Large-Scale Machine Learning" paper [?] where the dynamic control flow support in TensorFlow is being discussed in much more detail. \\
 
-As for the case of recursion, TensorFlow's support is still at a rudimentary level. They built up a way for allowing users to define recursive function definitions via the python API,  and supported it up until their r.1.4 TensorFlow release. They removed it, however, later on, (possibly termporarily) due to conflicts occured in their future development. Contrary to the other two dynamic control flow features, Google chooses to support functions and thus, recursion, by following the "dynamic approach".  They have created an operator named "Call", that is placed as a node inside the graph and represents the calling of a function. Every such node contains important information that associates it with the definition  of the function that is being called.  "Call" node's job is, essentially,  to replace itself with the body of that function, causing the dynamic expansion of the graph, as many times as needed. 
+As for the case of recursion, TensorFlow's support is still at a rudimentary level. They built up a way for allowing users to define recursive function definitions via the python API,  and supported it up until their r.1.4 TensorFlow release. They removed it, however, later on, (possibly termporarily) due to conflicts occured in their future development. Contrary to the other two dynamic control flow features, Google chooses to support functions and thus, recursion, by following the "dynamic approach".  They have created an operator named "Call", that is placed as a node inside the graph and represents the calling of a function. Every such node contains important information that associates it with the definition  of the function that is being called.  "Call" node's job is, essentially,  to replace itself with the body of that function, causing the dynamic expansion of the graph, as many times as needed. The real implementation might be a slight derivation of what was described above but the essence of the approach is exactly the same.
 
 The disantvantage of this particular approach, has been already discussed in the "Motivation" subsection.
 
@@ -405,7 +405,7 @@ Every "Call" operator, as described until now, must first gather all the functio
 In  \textit{\textbf{Figure 4.2}} we present the dataflow graphs of a simple program where \textit{\textbf{factorial}} gets called once, as generated by TensorBoard. 
 The graph on the left is the one generated after the "function-transformation" took place, whereas the one on the right is the initial graph generated by Google's "dynamic" approach.
 
-TensorBoard is a visualization tool, built by Google. It has several utilities but we used it extensively for visualizing the generated TensorFlow graphs which was extremely helpful for studying them and debugging our code.\\\\\\\\\ blabla a bit more maybe \\\\\\\\\\\
+TensorBoard is a visualization tool, built by Google. It has several utilities but we used it extensively for visualizing the generated TensorFlow graphs which was extremely helpful for studying them and debugging our code.\\\\\\\\\ blabla a bit more maybe \\\\\\\\\\\\\
 
 \begin{figure}
 \centering
@@ -417,9 +417,55 @@ TensorBoard is a visualization tool, built by Google. It has several utilities b
 
     \section{Local Execution}
 
+
+After succesfully transforming the graph, its resulting form can gracefully capture and depict in its entirety, every possible recursive mechanism defined by the client, in a way that relieves us from the need of using non-primitive, special operators with such costly and complex kernels. We, essentially,  eliminate every such special node as well as the additional overhead that it imposes by replacing it with two other, less costly, primitive operators (Call/Return) that only forward their inputs and manage frames.  The overhead added by the management of tags is not insignificant either, but with the appliance of the appropriate optimization techniques it can be limited significantly.
+
+Of course, our work doesn't end with the transformation. We may have succeeded so far, in ending up with representations that favor the "static" approach but we haven't ensured, yet, that the  execution engine recognizes the introduced operators and thus, understands how to properly treat the graph at runtime. Consequently, the next matter we needed to attend to was the registration of the Call/Return operators and the implementation of their kernels.  For the sake of consistency, we tried to do that by constantly consulting Google's pre-existing code for iteration, as Call and Return operators do not differ from Enter and Exit that much, after all. In fact, one can say that the first two are nothing but a generalization of the second ones. 
+
+
+As a continuation to Google's attempt at describing their operators' semantics, we provide below, in a similar vein, the evaluation rules of our newly introduced operators:
+
+\begin{flushleft}
+$Eval(Call(d, name), c) = r,\  where$ \\
+\setlength{\parindent}{5ex} $r = (value(d), is\_dead(d), tag(d)/name)$
+\end{flushleft}
+
+\begin{flushleft}
+$Eval(Return(d, name), c) = r, where \ $ \\
+\setlength{\parindent}{5ex} $tag(d) = tag1/name$\\
+$ r = (value(d), is\_dead(d), tag1)$
+\end{flushleft}
+
+\begin{flushleft}
+\textit{Note that, the evaluation of  Return under the following condition was left undefined :}\\
+$ Return(d, name), where \ $ \\
+\setlength{\parindent}{5ex} $tag(d) = tag1/name1,$\\ 
+$name \neq name1$
+
+\end{flushleft}
+
+
+Contrary to the case of iteration, the execution of non-tail recursive functions imposes what might constitute a significant performance issue.
+We have no control of parallelism. That is, we cannot impose a limit to how many calls of a recursive function can execute in the machine, at the same time.
+In the execution of iterative constructs, it is easy to specify a maximum number of overlapping iteration steps, but in most cases of recursion, the execution of one function-instance depends on the execution of another one
+
+
     \section{Distributed Execution}
 
+
+here,explain what is deadness propagation, and why is needed. 
+
+express the problem, occurred with functions, and how was solved.
+
+addition of state machines
+
+include a figure
+
 \chapter{RELATED WORK}
+
+korean guys
+
+other frameworks
 
 \chapter{FUTURE WORK}
  
