@@ -296,16 +296,21 @@ except that, the correct output is forwarding the propagated data as "alive" and
 
 Figures \textit{\textbf{2.2}}, \textit{\textbf{2.3}} and \textit{\textbf{2.4}} can be found in the "Dynamic Control Flow in Large-Scale Machine Learning" paper  \cite{Yu:2018} where the dynamic control flow support in TensorFlow is being discussed in much more detail. \\
 
-As for the case of recursion, TensorFlow's support is still at a rudimentary level. They built up a way for allowing users to define recursive function definitions via the python API,  and supported it up until their r.1.4 TensorFlow release. They removed it, however, later on, (possibly termporarily) due to conflicts occured in their future development. Contrary to the other two dynamic control flow features, Google chooses to support functions and thus, recursion, by following the "dynamic approach".  They have created an operator named "Call", that is placed as a node inside the graph and represents the calling of a function. Every such node contains important information that associates it with the definition  of the function that is being called.  "Call" node's job is, essentially,  to replace itself with the body of that function, causing the dynamic expansion of the graph, as many times as needed. The real implementation might be a slight derivation of what was described above but the essence of the approach is exactly the same.
+As for the case of recursion, TensorFlow's support is still at a rudimentary level. They built a way for allowing users to define recursive function definitions via the python API,  and supported it up until their r.1.4 TensorFlow release. They removed it, however, later on, (possibly termporarily) due to conflicts occured in their future development. Contrary to the other two dynamic control flow features, Google chooses to support functions and thus, recursion, by following the "dynamic approach".  They have created an operator named "Call", that is placed as a node inside the graph and represents the calling of a function. Every such node contains important information that associates it with the definition  of the function that is being called.  "Call" node's job is, essentially,  to replace itself with the body of that function, causing the dynamic expansion of the graph, as many times as needed. The real implementation might be a slight derivation of what was described above but the essence of the approach is exactly the same.
 
 The disantvantage of this particular approach, has been already discussed in the "Motivation" subsection.
 
+\begin{flushleft}
 Below, we present an example of calling functions, expressed as a functional program and the way it will be converted into a dataflow graph and get executed in TensorFlow: 
- \textit{\textbf{\begin{center}result = f(4) + f(5)\\f(x) = g(x+1)\\ g(y) = y \end{center}}}
+\setlength{\parindent}{25ex} $result = f(4) + f(5)$ \\
+$f(x) = g(x+1)$ \\ 
+$g(y) = y$
+\end{flushleft}
+
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.65]{figures/Tf_recursion}
+\includegraphics[scale=0.6]{figures/Tf_recursion}
 \caption{ Calling functions in TensorFlow}
 \end{figure}
 
@@ -437,7 +442,7 @@ $ r = (value(d), is\_dead(d), tag1)$
 \end{flushleft}
 
 %\begin{flushleft}
-\textit{Note that, the evaluation of "Return" is not defined for the case where it receives data from returning nodes that have been executed under a different context}\\
+\textit{Note that, the evaluation of "Return" is not defined for the case where it receives data from returning nodes that have been executed under a different context.}\\
 %$ Return(d, name), where \ $ \\
 %\setlength{\parindent}{5ex} $tag(d) = tag1/name1,$\\ 
 %$name \neq name1$
@@ -452,14 +457,40 @@ We have no control of parallelism. That is, we cannot impose a limit to how many
 
     \section{Distributed Execution}
 
+Executing graphs without deploying them on clusters is not wise in terms of performance.  Using dataflow systems only for 'local exeuction' not only does not exploit their immense parallelism/distribution potential but also yields slower performance results compared to other classic systems, as the overhead that they impose by trying to emulate the dataflow computational model is very significant. 
+That is why, implementing a "dynamic control flow" approach that favors the distributed execution is extremely important. 
 
-here,explain what is deadness propagation, and why is needed. 
+We already saw that, the resulting graphs in "static" approach contain the bodies of any existing, callee functions. That means that, contrary to TensorFlow's approach, we are now able to include these subgraphs in the partitioning and assign the function nodes to be executed on different machines, in ways that will improve performance the most.
 
-express the problem, occurred with functions, and how was solved.
+The partitioning of a recursive function definition, however, as well as that of any other dynamic control flow construct  when we follow the "static" approach, is not that easy to perform in TensorFlow.
+TensorFlow's design allows the execution of each partition to make progress independently, without conforming to constraints imposed by a centralized coordinator \cite{Yu:2018}. That maximizes the potential for better performance, but makes the partitioning a challenging procedure.
 
-addition of state machines
+Remember that, in static approach, any subgraph corresponding to the body of a while loop or a recursive function, is provided with a tagging mechanism that will create/destroy frames and produce different contexts under which those computations will take place. This mechanism is nothing but an additional set of primitive, context switching operators which are, also, subject to partitioning. A partition, however, cannot include any partially composed "mechanisms" as this would cause the incorrect generation of frames/tags, inside a machine, during execution. We have to make sure that, every partition that contains nodes that will be executed under different contexts/frames, will also contain all the necessary mechanisms for generating that frames.
 
-include a figure
+In order to add support for distributed execution, in our implementation for recursion, we adopted a similar solution to the one Google already proposes for the case of iteration, yet more generalized. Google's solution keeps track of all the iterative constructs that are embedded in a graph as well as their mechanisms for generating and destroying frames. Whenever a loop is "shared" between multiple partitions, the corresponding mechanism, referred to as control-loop state machine,  will be added to all of them. A simple control-loop state machine consists of an Enter, a NextIteration, a Merge and a Switch operator as shown in  \textit{\textbf{Figure 4.3}} where we present an example also found in the "Dynamic Control Flow in Large-Scale Machine Learning" paper \cite{Yu:2018}.
+
+However, in case of recursion, the form of a "control-recursion" state machine is slightly more complex. Here, we may have multiple conditional branches, with each one of them, leading either to a base case or a simple/mutually recursive call or a simple call to a different possibly recursive function e.t.c. What we do in order to extract the correct form of the state machines in every case, is traversing the graph and capturing all the special operators that constitute the dynamic control flow's backbone as well as the way they are connected to each other. When traversing the graph we ignore common and non context-switching operators as they will neither be included in the eventual state machine nor they will give us important information about the dynamic control flow construct's structure. We take into account the Call, Return, Switch, Merge operators and all of them, with the exception of "Return" nodes, will be added to the state machine that will eventually  be copied to all the appropriate partitions. The way these operators will be connected to each other, inside the state machine, is inferenced during the graph's traversal.
+
+\begin{figure}
+\centering
+\includegraphics[scale=1.2]{figures/sm_iteration}
+\caption{Distributed execution of a while-loop in TensorFlow}
+\end{figure}
+
+
+
+As shown in \textit{\textbf{Figure 4.3}}, whenever two connected nodes  reside on two different partitions, TensorFlow creates and places between them, two additional special operators that handle the transition of the data via the network. These nodes, named "Send"  and "Receive", get connected to the nodes that send the data and receive it, respectively and each one of them resides on the same partition as its connected node does. 
+
+We already made a reference, in a previous section, to a phenomenon called deadness propagation. In cases where a conditional branch is not taken, the nodes that compose it are being executed anyway. The difference is that these nodes do not perform computations. They are considered to be "dead" and all the outputs they generate are propagated as "dead", too. 
+The reason why this is happening, is  because "Receive" operators do not formally have any incoming edges and that makes them qualified for immediate execution. Their computation is terminated the moment they receive data from its corresponding "Send" operators that belong in other partitions. However, there may exist "Receive" operators, that have been triggered to wait for data generated by nodes that belong in non-taken branches. Normally, those operators would block indefinately, as they would never reveive any data, but now, with deadness propagation, they will accept data tokens indicated as dead and their execution will be officially terminated.
+
+In the case we are dealing with, in our implementation, we may have conditional branches that contain simple/mutually recursive calls. The nodes of these branches are  also expected to generate dead data in case the branches are not taken, so we have to ensure somehow, that deadness will manage to get propagated through the callee recursive functions, too. This, however, constitutes an issue, as the recursive "Call" operators might cause the propagation to get stuck within an endless loop or freeze in general. We are treating this by inserting a control-edge that directly connects  the "Call" operator to the corresponding "Return". So, now, "Call" manages to propagate deadness immediately through the "Return" operator. 
+
+ \textit{Control edges are edges that do not transfer useful data. They are only created between two nodes in order to impose ordering constraints.}
+
+
+
+Figure with factorial's partition goes here
 
 \chapter{RELATED WORK}
  \cite{Jeong:2018}
