@@ -203,7 +203,7 @@ It is highly desirable, as a feature for every dataflow-based system, to be able
 
     \subsection{Out-of-Graph}
 Current dataflow-based frameworks, allow their clients to specify their desired computations as dataflow graphs via their APIs and provide an execution engine as well, in order to run them. The “out of graph” approach, meets the client’s requirements for expressing dynamic control flow constructs (e.g. while loops) by using the dynamic control flow support of the given client-side language. That means, that, if the framework’s API is accessible via a common, imperative language such as Python, then the client may construct a dataflow graph that corresponds to the body of a while loop and depend on the underlying python execution engine, to run repeatedly the API command that triggers the execution of the graph by the framework’s dataflow executor. This approach, of course, has some disadvantages, as it does not exploit the fact, that the graph has already travelled once, all the way, from the core’s surface to the execution engine, and has already been under many optimization or initialization processes that can be useful throughout all the iteration steps of the while loop.
-Some known frameworks that follow this approach are  \cite{Paszke2017} or DyNet  \cite{ Neubig2017DyNetTD}.
+Some known frameworks that follow this approach are  PyTorch \cite{Paszke2017} or DyNet  \cite{ Neubig2017DyNetTD}.
 
     \subsection{In-Graph}
 In-graph approach suggests that the dynamic control flow constructs are embedded inside the dataflow graphs. That means, that the dataflow executor is responsible for managing all the iteration steps of the while loop as well as the logistics that will, eventually, decide its termination, without the intervention of the client’s underlying execution engine.
@@ -301,8 +301,8 @@ As for the case of recursion, TensorFlow's support is still at a rudimentary lev
 The disantvantage of this particular approach, has been already discussed in the "Motivation" subsection.
 
 \begin{flushleft}
-Below, we present an example of calling functions, expressed as a functional program and the way it will be converted into a dataflow graph and get executed in TensorFlow: 
-\setlength{\parindent}{25ex} $result = f(4) + f(5)$ \\
+  Below, we present an example of calling functions, expressed as a functional program and the way it will be converted into a dataflow graph and get executed in TensorFlow: \\
+ \setlength{\parindent}{25ex} $result = f(4) + f(5)$ \\
 $f(x) = g(x+1)$ \\ 
 $g(y) = y$
 \end{flushleft}
@@ -486,7 +486,7 @@ The reason why this is happening, is  because "Receive" operators do not formall
 
 In the case we are dealing with, in our implementation, we may have conditional branches that contain simple/mutually recursive calls. The nodes of these branches are  also expected to generate dead data in case the branches are not taken, so we have to ensure somehow, that deadness will manage to get propagated through the callee recursive functions, too. This, however, constitutes an issue, as the recursive "Call" operators might cause the propagation to get stuck within an endless loop or freeze in general. We are treating this by inserting a control-edge that directly connects  the "Call" operator to the corresponding "Return". So, now, "Call" manages to propagate deadness immediately through the "Return" operator. 
 
- \textit{Control edges are edges that do not transfer useful data. They are only created between two nodes in order to impose ordering constraints.}
+ \textit{Control edges are edges that do not transfer data. They are only added between two nodes in order to impose ordering constraints.}
 
 
 
