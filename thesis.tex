@@ -78,26 +78,27 @@
 %
 % Supervisor(s) info
 %
-\supervisorGr{Άγγελος Χαραλαμπίδης}{Ερευνητής ΕΚΕΦΕ}
+\supervisorGr{Άγγελος Χαραλαμπίδης}{Ερευνητής ΕΚΕΦΕ Δημόκριτος}
 \supervisorGr{Παναγιώτης Ροντογιάννης}{Καθηγητής ΕΚΠΑ}
-\supervisorEn{Angelos Charalambidis}{Researcher NCSR}
+\supervisorEn{Angelos Charalambidis}{Researcher NCSR Demokritos}
 \supervisorEn{Panos Rondogiannis}{Professor NKUA}
 %
 % Abstract, synopsis, inscription, ack, and preface pages.
 %
 \abstractEn{
-Dataflow programming paradigm suggests that a program is represented as a graph.
-This representation could be thought of, perhaps, as an enhanced version of the conventional/ classic one because it contains information about both the computations that need to take place and their underlying ordering dependencies. A dataflow execution model can use this information to execute all the non-dependent code segments out of order and in parallel which increases the degree of parallelism to the maximum possible level (lack of resources may be the only limitation). However, embedding dynamic control flow features such as if-else structures, iteration or even recursive function definitions inside those graphs is not as trivial as we would like it to be. Two main approaches have been suggested in the dataflow community, so far. The first one (dynamic) leads to the creation of graphs that transform themselves on demand, during runtime, while the second one (static) proposes the creation of static, non-transforming graphs that retain their initial form throughout the whole execution. The second approach is quite more profound, as it needs the introduction of a concept called “tagging” in order to work. The various dataflow systems, that are being developed nowadays, follow either the first or the second approach when they need to support such dynamic control flow features. None of them, however, does follow the second approach when it comes to supporting recursive function definitions, as the tagging mechanism that needs to be employed is considered to be rather complex and possibly is avoided. The subject of this thesis, is the proposal of a systematic way to embed recursive function definitions in static dataflow graphs, based on ideas expressed during the extended research that already has been made regarding this topic, at the past.  A great part of this thesis, has also been the implementation of these ideas in a famous, rapidly growing, dataflow-based framework called Tensorflow, which was made by Google for Machine Learning purposes.
+Dataflow is  an alternative programming paradigm which proposes that every computation is represented as a graph.
+This representation could be thought of, perhaps, as an enhanced version of the classic one because it contains information about both the tasks that need to be carried out and the underlying data dependencies. A dataflow execution model can use this information to execute all the non-dependent code segments out of order and in parallel which can, theoretically, increase the degree of parallelism to the maximum possible level. Dataflow's potential for immense parallelism/distribution has made this model extremely popular in the Machine Learning community where there is  a great number of new dataflow-based frameworks that have been recently developed for this purpose. Embedding dynamic control flow features,  such as if-else constructs, iteration or even recursive function definitions, inside those dataflow graphs, is extremely needed in this field for expressing complex computations and certain kinds of neural networks, however, it is not as trivial as we would like it to be. Two main approaches have been suggested as a solution, in the dataflow community, so far. The first one (dynamic) leads to the creation of graphs that transform themselves on demand, during runtime, while the second one (static) proposes the creation of static, non-transforming graphs that retain their initial form throughout the whole execution. The second approach is quite more profound, as it needs the introduction of a concept called “tagging” in order to work. The various dataflow systems that have recently emerged, follow either the first or the second approach when they need to support such dynamic control flow features. None of them, however, does follow the second approach when it comes to supporting recursive function definitions, as the tagging mechanism that needs to be employed is considered to be rather complex and possibly is avoided. The subject of this thesis, is the proposal of a systematic way to embed recursive function definitions in static dataflow graphs, based on ideas expressed during the extended research that already has been made regarding this topic, at the past.  A great part of this thesis, has also been the implementation of these ideas in a famous, rapidly growing, dataflow-based framework called TensorFlow, which was made by Google for Machine Learning purposes.
 }
 \abstractGr{
 \begin{greek}
-Το Dataflow μοντέλο προγραμματισμού 
+Το Dataflow είναι ένα εναλλακτικό μοντέλο προγραμματισμού στο οποίο κάθε υπολογισμός αναπαρίσταται σαν ένας γράφος. Αυτή η αναπαράσταση μπορεί να θεωρηθεί, ενδεχομένως, σαν μια ενισχυμένη έκδοση της κλασικής/συμβατικής αναπαράστασης προγραμμάτων επειδή περιέχει πληροφορίες τόσο για τους υπολογισμούς που πρέπει να πραγματοποιηθούν όσο και για τις αλληλοεξαρτήσεις των δεδομένων. Ένα dataflow μοντέλο εκτέλεσης μπορεί να χρησιμοποιήσει αυτές τις πληροφορίες για να εκτελέσει όλα τα "ανεξάρτητα" τμήματα κώδικα  παράλληλα κάτι το οποίο μπορεί να αυξήσει, θεωρητικά, το βαθμό παραλληλίας στο μέγιστο δυνατό επίπεδο. Η δυνατότητα του μοντέλου αυτού για μια τόσο μεγάλη, ενδεχόμενη παραλληλία το έχει καταστήσει ιδιαίτερα διάσημο στην κοινότητα του Machine Learning όπου έχει δημιουργηθεί ένα μεγάλο πλήθος από dataflow συστήματα συγκεκριμένα για αυτόν τον σκοπό.
+Η ενσωμάτωση χαρακτηριστικών δυναμικής ροής ελέγχου όπως  η επανάληψη, η αναδρομή ή η εκτέλεση υπο συνθήκη σε αυτούς τους γράφους είναι εξαιρετικά χρήσιμη στον τομέα του Machine Learning, έτσι ώστε να μπορούν να εκφράζονται εύκολα πολύπλοκοι υπολογισμοι καθώς και συγκεκριμένα είδη νευρωνικών δικτύων, ωστόσο δε γίνεται με τόσο προφανή τρόπο όσο θα θέλαμε. Δύο βασικές προσεγγίσεις έχουν προταθεί σαν λύση από την dataflow κοινότητα, μέχρι στιγμής. Η πρώτη (δυναμική) προκαλεί τη δημιουργία γράφων που μετασχηματίζονται, κατ' απαίτηση, κατα τη διάρκεια της εκτέλεσης, ενώ η δεύτερη (στατική) προτείνει τη δημιουργία στατικών γράφων που διατηρούν την αρχική τους μορφή κατα τη διάρκεια όλης της εκτέλεσης. Η δεύτερη προσέγγιση είναι ελαφρώς πιο σύνθετη μιας και απαιτεί να εισάγουμε την έννοια του "tagging" ώστε να επιτευχθεί. Τα διάφορα dataflow συστήματα που έχουν αναπτυχθεί εώς τώρα, ακολουθούν είτε την πρώτη είτε την δεύτερη προσέγγιση, όταν χρειάζεται να υποστηρίξουν τέτοια χαρακτηριστικά δυναμικής ροής ελέγχου. Κανένα, ωστόσο, απ' όσο γνωρίζουμε, δεν ακολουθεί την δεύτερη προσέγγιση όταν πρόκειται να υποοστηρίξει ορισμούς αναδρομικών συναρτήσεων, διότι ο "tagging" μηχανισμός που χρειάζεται να υλοποιηθεί θεωρείται περίπλοκος και πιθανώς αποφεύγεται. Το θέμα αυτής της πτυχιακής εργασίας είναι η πρόταση μιας συστηματικής μεθόδου για την ενσωμάτωση ορισμών αναδρομικών συναρτήσεων σε στατικούς dataflow γράφους, βασισμένη στην εκτεταμένη έρευνα που έχει ήδη γίνει στο παρελθόν όσον αφορά σε αυτό το θέμα. Ένα μεγάλο μέρος της εργασίας αυτής ήταν εκτός των άλλων και η υλοποίηση αυτών των ιδεών σε ένα διάσημο, ταχέως διευρυνόμενο dataflow σύστημα που ονομάζεται TensorFlow και δημιουργήθηκε από την Google για τους σκοπούς του Machine Learning.
 \end{greek}
 }
 \acksEn{
 I would like to thank both Panos Rondogiannis and Angelos Charalambidis for giving me the chance to work on a challenging project and for coming up with this interesting subject on the first place.
 
-I am especially grateful to Angelos who has been helping \textcolor{red}{(baby-sitting)} me for the last few months and making me consider him more of a teammate than a simple supervisor.
+I am especially grateful to Angelos who has been helping  me for the last few months and making me consider him more of a teammate than a simple supervisor.
 His special psychic abilities, that make him come up with accurate solutions, provided me with great comfort when I’d see my intuition leading me to all the wrong places.
 }
 \prefaceEn{
@@ -140,19 +141,23 @@ The objective of the task that was initially proposed to me, as a subject for th
 % add main chapters (should be given in capital letters)
 \chapter{INTRODUCTION}
     \section{Main Concept}
-	In the conventional, von Neumann model, a program is represented as a sequence of instructions, whose order of execution is implicitly described by the programmer. Memory is being treated as a stack during the execution and the data stored in there is mutable (side effects). The execution of a code segment, representing a recursive function, in the above architecture, is handled with the help of a register, called program counter, whose value always points to the address of the instruction that is meant to be executed next (instruction pointer). This code segment is supposed to be executed every time the recursive function calls itself which is a decision that, in most cases, can only be made at runtime (dynamic control flow). Every recursive call initiates the creation of an activation record (frame) which is “pushed” in stack and holds all the data that are local to that specific call (and thus “related” to each other), together. Code is executed sequentially, which causes memory to expand linearly and that is what truly allows the isolation of the data which is critical for avoiding mixing up variables that were derived by different function calls during the computations.
+	In the conventional, von Neumann model, a program is represented as a sequence of instructions, whose order of execution is implicitly described by the programmer.
+The execution of a code segment, representing a recursive function, in the above architecture, is handled with the help of a register, called program counter, whose value always points to the address of the instruction that is meant to be executed next (instruction pointer). This code segment is supposed to be executed every time the recursive function calls itself which is a decision that, in most cases, can only be made at runtime (dynamic control flow). Whenever such calls occur, the program counter updates its value appropriately so that the execution jumps to the correct instruction, re-entering the same code segment again and again. This way the executable code contains once the code of the recursive function which is re-computed whenever necessary. An alternative approach to that, however, would be to modify the executable code at runtime  and handle each recursive call by inserting the corresponding code-segment dynamically to the default, following address, where the PC is normally supposed to point next (PC+4 in most cases). Every recursive call would now cause the expansion of the executable code and no jumps would occur during the execution.
+From now on, we will refer to those two approaches as "static" and "dynamic", respectively.
 
-As opposed to the model described above, dataflow programming paradigm adopts a data driven computational model which allows the instructions to be executed out of order and in parallel and exploits the maximum parallelism inherent in a program. In dataflow, a program is represented as a graph where nodes are the operations/ instructions and edges are the flowing data. The next set of operations that are to be executed, at any given moment, comprises those that have all their inputs available, that is, nodes whose incoming edges have all received data generated by the computation of previous operations. In such a model, we have neither stack-behaved memory nor side effects (all data is immutable) as every “variable” is instantly propagated to all the operations that depend on its current value, eliminating the need for a stateful environment. So, representing recursive function definitions (or any dynamic control flow feature for that matter) in static, non-transforming dataflow graphs and executing them is not that easy to achieve. If a subgraph (set of nodes), inside the dataflow graph, represents the computations that compose the function’s body, then, intuitively, we would expect that one or more of those nodes (depending on the number of different locations from which this recursive function calls itself) would send their output to the subgraph itself, creating a graph cycle, so that they can possibly re-trigger its execution. What happens though, when we have more than one calls of the same function, executing concurrently?  We have multiple instances of the same operations, awaiting to be triggered by the arrival of data, at the same time. Nothing can guarantee, in this scenario, that an operation instance won’t be triggered by the arrival of data derived by different function calls, hence, the correct execution cannot be ensured and the given results cannot be trusted.
+As opposed to the model described above, dataflow programming paradigm adopts a data driven computational model which allows the instructions to be executed out of order and in parallel and exploits the maximum parallelism inherent in a program. In dataflow, a computation is represented as a graph where nodes are the operations/ instructions and edges are the flowing data. 
+In this case, consequently, we represent the definition of any recursive function as  a set of nodes (subgraph) that connect to each other and constitute the computations that compose the function’s body. Similar to the classic model, we can handle each recursive call by following one of the two aforementioned approaches. 
+ The equivalent "dynamic" approach suggests that we copy, repeatedly, the function-subgraph to the corresponding call-sites, causing the main dataflow graph to expand at runtime, until we reach the recursion's base case. The equivalent "static" approach, on the other hand, proposes that the main graph will contain only once this subgraph, during execution and every recursive call will cause the re-entrance to it and its repetitive computation.
 
-While classic model is treating this problem by exploiting the linear memory expansion and making data of the same function calls reside on the same, confined memory locations, dataflow cannot follow, of course, the exact same approach. The equivalent of that solution, would be, to make the flowing data itself hold a piece of information that would indicate the function call from which they were derived. That piece of information is called “tag” in the dataflow community \cite{Nikhil:2000}, and is introduced as the means for overcoming the difficulties described above.\\
+While the dynamic approach is more popular as it is easier to implement in a dataflow-based system,  we have reasons to believe that the static approach would possibly lead to superior performance results, as static graphs, whose form is known in advance, can  be better optimized and partitioned  for distributed execution.
 
-The subject of this thesis, was to upgrade TensorFlow so that it can support the definition of recursive functions inside static dataflow graphs as well as their execution, for which a tagging mechanism, as described above, needed to be deployed.
+The subject of this thesis, was to extend TensorFlow so that it can support the definition of recursive functions inside static dataflow graphs as well as their execution, for which a tagging mechanism, as will be described below, needed to be deployed.
 
 
     \section{Motivation}
 
     \subsection{Improved Expressiveness}
-	Black Box – yet to be opened
+	 \textcolor{blue}{Blah Blah..}
 
     \subsection{Better Distribution}
 	Google’s approach for integrating recursion in TensorFlow is a lot different than the one implemented in this project. Their solution is actually based on the idea that the executed dataflow graphs can be transformed at runtime and expand themselves on demand. Each time another recursive call occurs, the executor is actually copying, repeatedly, the body of the callee function at the corresponding call site. This approach, however, has a major drawback. Dataflow’s nature allows the partitioning of the main graph into multiple subgraphs that can then be deployed in distributed, heterogeneous systems and get executed in parallel without any conflicts. In Google’s provided solution, the initial graph that gets partitioned does not include the bodies of the functions that will be possibly called during the execution. The “calling” of a function is represented with a special node whose main operation is to replace itself with the subgraph that corresponds to the body of that function. Thus, it is inevitable that all the recursive calls of a function will be executed, essentially, in only one machine.  In cases where function bodies/subgraphs are very big or number of occurring recursive calls is huge, the performance results, theoretically, are expected to be rather inferior to the ones yielded by the “static” approach.
@@ -166,9 +171,9 @@ Even when execution takes place in only one, local machine and not a cluster, th
     \section{Structure of Thesis}
 The rest of the thesis is organized as follows:
 
-\textit{Background} is supposed to provide basic, fundamental knowledge about the concepts that are being dealt with throughout the entire thesis.
+\textit{Background} provides basic, fundamental knowledge about the concepts that are being dealt with throughout the entire thesis.
 
-\textit{Approach} provides a general description of the followed approach, in a theoretical, abstract level.
+\textit{Approach} provides a general description of the followed approach, in a theoretical, implementation - independent level.
 
 \textit{Implementation} includes more technical information about the implementation that concerns mostly TensorFlow's core and infrastructure.
 
@@ -193,64 +198,60 @@ Dataflow programming paradigm suggests that the set of computations that need to
 \caption{ Pythagorean equation as a Dataflow graph}
 \end{figure}
 
-It is easy to infer that a model with such characteristics is ideal for distributed computing systems. A dataflow graph can easily be partitioned into multiple subgraphs, which can then be deployed in any number of different and potentially heterogeneous machines that belong in a cluster, and get executed simultaneously. The problem of transferring data between nodes that have resided on different machines, can be easily treated by the serialization of those data tokens and their transmission over the network.
-There is no doubt why people, in domains that deal with massive data management, are highly interested in the parallelism opportunities that this model unlocks for them. \\
+It is easy to infer that a model with such characteristics is ideal for systems with no shared-memory (e.g. distributed systems). A dataflow graph can easily be partitioned into multiple subgraphs, which can then be deployed in any number of different and potentially heterogeneous machines that belong in a cluster, and get executed simultaneously. The problem of transferring data between nodes that have resided on different machines, can be easily treated by serializing them and transmitting them over the network.
+There is no doubt why people, in domains that deal with massive data processing, are highly interested in the parallelism opportunities that this model unlocks for them. \\
 \linebreak\linebreak\linebreak\linebreak\linebreak\linebreak
 
 
-    \section{Dynamic Control Flow in Dataflow}
-It is highly desirable, as a feature for every dataflow-based system, to be able to embed dynamic control flow constructs inside the dataflow graphs and have an execution model  that  can handle them at runtime. The alternative to this, is an “out of graph”, client-side approach which will be better explained below.
+    \section{Dynamic Control Flow in Dataflow Systems}
+It is highly desirable, as a feature for every dataflow-based system, to be able to embed dynamic control flow constructs inside the dataflow graphs and have an execution model  that  can handle them at runtime \cite{Yu:2018}. The alternative to this, is an “out of graph”, client-side approach which will be better explained below.
 
-    \subsection{Out-of-Graph}
+    \subsection{Out-of-Graph vs In-Graph Approach}
 Current dataflow-based frameworks, allow their clients to specify their desired computations as dataflow graphs via their APIs and provide an execution engine as well, in order to run them. The “out of graph” approach, meets the client’s requirements for expressing dynamic control flow constructs (e.g. while loops) by using the dynamic control flow support of the given client-side language. That means, that, if the framework’s API is accessible via a common, imperative language such as Python, then the client may construct a dataflow graph that corresponds to the body of a while loop and depend on the underlying python execution engine, to run repeatedly the API command that triggers the execution of the graph by the framework’s dataflow executor. This approach, of course, has some disadvantages, as it does not exploit the fact, that the graph has already travelled once, all the way, from the core’s surface to the execution engine, and has already been under many optimization or initialization processes that can be useful throughout all the iteration steps of the while loop.
 Some known frameworks that follow this approach are  PyTorch \cite{Paszke2017} or DyNet  \cite{ Neubig2017DyNetTD}.
 
-    \subsection{In-Graph}
 In-graph approach suggests that the dynamic control flow constructs are embedded inside the dataflow graphs. That means, that the dataflow executor is responsible for managing all the iteration steps of the while loop as well as the logistics that will, eventually, decide its termination, without the intervention of the client’s underlying execution engine.
+This approach might be harder to implement but is generally favored due to its noticeably better performance.  \cite{Yu:2018}
 
     \subsection{Dynamic vs Static Dataflow Graphs}
-Those who might consider integrating an “in-graph” approach in a dataflow-based system, must concern themselves with two critical matters. First, they need to figure out a way to depict the dynamic control flow constructs in the graph, during its creation. Then, they must make all the appropriate adjustments to the system’s execution engine, so that it knows how to properly treat that graph during its execution.
+Those who might consider integrating an “in-graph” approach in a dataflow-based system, must concern themselves with two critical matters. First, they need to figure out a way to depict the dynamic control flow constructs in the graph, during its creation. Then, they must ensure that  the system’s execution engine knows how to properly treat that graph during its execution.
 
-There are two discrete ways that are being followed by various, modern dataflow systems for embedding dynamic control flow inside dataflow graphs. 
+There are two discrete ways that are being followed by various, modern dataflow systems for embedding dynamic control flow inside dataflow graphs, as mentioned in \textit{Introduction}. 
 
-First one suggests, that inside the graphs created by the client, any dynamic control flow construct is represented as a node whose operation is rather complex compared to all the other primitive operations. Such nodes are responsible for transforming and expanding the dataflow graphs at runtime which is the only period when the dynamic control flow decisions (logistics) can be actually resolved. They are, essentially, copying or adding the demanded subgraphs to the main graph the moment it is clear that they need to be re-computed.
+First one suggests, that inside the graphs created by the client, any dynamic control flow construct is represented as a node whose operation is rather complex compared to all the other primitive operations. Such nodes are responsible for transforming or/and expanding the dataflow graphs at runtime which is the only period when the dynamic control flow decisions (logistics) can be actually resolved. They are, essentially, copying or adding the demanded subgraphs to the main graph the moment it is clear that they need to be (re-) computed. We refer to every such graph that is subject to transformations at runtime, as "dynamic" graph.  For example, conditional execution would be depicted inside a dynamic graph as a special node which chooses, when gets triggered, to replace itself with the body-subgraph of the corresponding taken-branch.
+Note that, in this particular approach, graphs do not contain cycles, as a cycle is nothing but an edge leading back to an already computed subgraph re-triggering its execution. In this solution, every node executes only once. 
 
-Note that, in this particular approach, graphs do not contain cycles, as a cycle is nothing but an edge leading back to an already computed subgraph re-triggering its execution. In this solution, every node executes only once.
+The second approach, results in the creation of static dataflow graphs whose form will not be changed by any special, non-primitive nodes during the execution. Any set of nodes corresponding to the body of a while-loop, the body of a recursive function or the bodies of an if-else’s branches, is now integrated in the graphs along with an additional set of primitive operators that constitutes the tagging mechanism that will ensure the correct flow of execution. The notion of “tags”, as will be mentioned below, serves as a way for specifying the context under which every node/operator is executed. Contrary to the previous approach, this one allows the creation of cycles as there would be no other way, to express the need for re-computing a certain subgraph in an environment where graphs remain static. 
 
-The equivalent of that solution, in the classic, control flow model, would be to modify and maybe expand the executable code (e.g. bytecode) at runtime. It is only then, in dynamic control flow cases, that the instruction to be executed next can be actually determined. That is, after the computation of the corresponding logistics has taken place. So, now, instead of updating appropriately the program counter and jumping to the right instruction, wherever that may be, we insert the correct instruction, dynamically to the default, following address, where the PC is normally supposed to point next (PC+4 in most cases).
+    \subsection{Recursion in Tagged-Dataflow}
 
-The second approach, results in the creation of static dataflow graphs whose form will not be changed by any special, non-primitive nodes during the execution. Any set of nodes corresponding to the body of a while-loop, the body of a recursive function or the bodies of an if-else’s branches, is now integrated in the graphs along with an additional set of primitive operators that constitutes the tagging mechanism that will ensure the correct flow of execution. The notion of “tags”, as already mentioned before, serves as a way for specifying the context under which every node/operator is executed. Contrary to the previous approach, this one allows the creation of cycles as there would be no other way, to express the need for re-computing a certain subgraph in an environment where graphs remain static. This introduces the problem of mixed-up data, in cases when multiple instances of same operations are being executed simultaneously (overlapping recursive function calls or iterations) and is resolved by that employed mechanism that tags the data and makes them uniquely identified. A computation will now take place, only the moment when all the node’s incoming edges have received data that belong in the same context. The tag can be anything one desires, as long as it can uniquely “paint” the data, based on the context under which they were derived.
+In the conventional, von Neumann architecture, memory (stack) gradually expands during the execution and the data stored in there is mutable (side effects). 
+Every time a  recursive function calls itself it initiates the creation of an activation record (frame) which is “pushed” in stack and holds all the data that are local to that specific call (and thus “related” to each other), together. Code is executed sequentially, which causes memory to expand linearly and that is what truly allows the isolation of the data which is critical for avoiding mixing up variables that were derived by different function calls during the computations.
 
-Iteration and recursion are nothing but two different mechanisms for triggering the repetitive execution of a certain code-segment (here subgraph). One can say that the first one is, essentially, a subset of the second one, as every possible iteration-loop can be expressed as a tail recursive function. 
+Dataflow's execution model allows the instructions to be executed out of order and in parallel. The next set of operations that are to be executed, at any given moment, comprises those that have all their inputs available, that is, nodes whose incoming edges have all received data generated by the computation of previous operations. In such a model, we have neither stack-behaved memory nor side effects (all data is immutable) as every “variable” is instantly propagated to all the operations that depend on its current value, eliminating the need for a stateful environment.  Representing recursive function definitions (or any dynamic control flow feature for that matter) in static, non-transforming dataflow graphs and executing them cannot be treated the same way now.
+If a subgraph (set of nodes), inside the dataflow graph, represents the computations that compose the function’s body, then, intuitively, we would expect that one or more of those nodes (depending on the number of different locations from which this recursive function calls itself) would send their output to the subgraph itself, creating a graph cycle, so that they can possibly re-trigger its execution. What happens though, when we have more than one calls of the same function, executing concurrently?  We have multiple instances of the same operations, awaiting to be triggered by the arrival of data, at the same time. Nothing can guarantee, in this scenario, that an operation instance won’t be triggered by the arrival of data derived by different function calls, hence, the correct execution cannot be ensured and the given results cannot be trusted.
 
-In the dynamic approach, we would expect that an iterative construct would trigger the linear expansion of the graph, whereas, some recursive ones, would cause the graph to expand in a tree-like way. That said, we can now have a sense, perhaps, of how the tag, in each case, must be represented. 
-
-Non-formally speaking, in the simple case of one  loop, we have multiple instances of the same subgraph (loop’s body) firing whenever they are triggered, and creating a "chain" as the loop keeps unfolding. In that case, a simple number belonging in the set of natural numbers would suffice as a tag that would make one chain piece distinguishable from the others. However, if we are able, at each given moment, to trigger the simultaneous execution of that particular subgraph an arbitrary amount of times by different call sites, as happens with recursion, that representation would not be satisfactory. Intuitively we would need a more profound way to capture the topological position of each subgraph-instance inside the resulting “function-calls tree” and that would be by using lists of natural numbers with unspecified length. \textcolor{red}{(Is the intuition too much?)}
-
-
-    \section{Yaghi's Transformation}
-
-The problem of how recursion can be expressed in static dataflow graphs and the tagging mechanism that needs to be employed in order to track the depth and path of each recursive function call, has already been resolved in past research work and a formal basis for the aforementioned matters has already been provided.  \cite{Rondogiannis:1997}
-
-There has been described a systematic way for producing static dataflow graphs from potentially recursive function definitions based on an algorithm called “Yaghi’s transformation”, proposed by A. Yaghi as a subject for his PhD dissertation, in 1984.
-
-This algorithm provides a method for transforming first-order functional programs into intentional ones which, as the conducted research suggests, can be easily deployed and executed in dataflow architectures running a demand-driven computational model, called Eduction.
-
-The above work introduces the idea of expressing tags as integer-lists of arbitrary length and essentially describes the additional, primitive, context switching operators that implement the tagging mechanism we need for the static approach that was mentioned earlier. Applying the ideas that were expressed in that research to dataflow systems that run a data-driven execution model was rather easy, but a formal, theoretical proof of the data-driven “version” should, definitely, be provided.
-\\\\\\\
-
-
-    \section{TensorFlow}
+While classic model is gracefully/naturally treating this problem by exploiting the linear memory expansion and making data of the same function calls reside on the same, confined memory locations, dataflow cannot follow, of course, the exact same approach. The equivalent of that solution, would be, to make the flowing data itself hold a piece of information that would indicate the function call from which they were derived. That piece of information is called “tag” in the dataflow community \cite{Nikhil:2000}, and is introduced as the means for overcoming the difficulties described above.\\
+ The tag can be anything one desires, as long as it can uniquely “paint” the data, based on the context under which they were derived. 
+Now,  in tagged dataflow , the execution of a node will take place, only the moment when all its incoming edges have received data that belong in the same context.
+    
+\chapter{TENSORFLOW}
 
 TensorFlow  \cite{Abadi:2016} is a rapidly-growing, open-sourced project that is mainly introduced as a system for large-scale machine learning. It is based on the dataflow computational model, which unlocks high parallelism and distribution opportunities and makes it an ideal framework for domains that deal with complex and costly mathematical computations, in general. It was created by Google Brain Team’s researchers and it is now being receiving contributions from all over the world. 
 
 It is one of the numerous \cite{Zaharia:2012,Rossbach:2013, Theano, Jia2014caffe} dataflow-based systems, created by the Machine Learning and Big Data communities, where they are in great need for new, sophisticated frameworks, that will allow them to fully exploit all of their resources in order to manage huge amount of data in a reasonable amount of time.
 
 TensorFlow is, basically, a library, whose API allows the users to represent their desired computations as dataflow graphs and set up their execution. 
-They are able to configure the cluster on which a graph will be deployed, specify any node placement constraints that will affect the graph's partitioning, select the graph-optimizations that will be, eventually, applied and choose between many more useful setting options. \\\\
+They are able to configure the cluster on which a graph will be deployed, specify any node placement constraints that will affect the graph's partitioning, select the graph-optimizations that will be, eventually, applied and choose between many more useful setting options.
 
-    \subsection{Dynamic Control Flow in TensorFlow}
-Google favors the in-graph approach for integrating dynamic control flow features in TensorFlow and argues that this implementation yields much better performance results compared to the alternative, mainly because it enables the performing of whole-graph optimizations. In addition to that, they have chosen to implement the iteration and if-else features by following the "static" approach that was described before. That means, that they are embedding while-loops and if-else constructs inside non-transforming, static graphs and have created a special set of primitive operators that will ensure the correct flow of execution.  \cite{Yu:2018}
+TensorFlow can run on multiple CPUs and GPUs composing a cluster. That allows users to exploit all of their computational units and deploy on GPUs computations that are complex and better suited to be processed there.
+
+    \section{TensorFlow's Execution Model}
+
+After the client constructs the dataflow graph and initiates its execution, the graph gets pruned so that all the unecessary graph components that do not contribute to the general computation get removed (that is nodes that are not needed to be executed). The resulting subgraph, then, gets optimized by undergoing several transformation procedures and gets partitioned, so that it can be deployed on multiple devices including CPUs, GPUs, or TPUs which are application-specific processing units dedicated for TensorFlow. TensorFlow's execution engine in handling every partition by decomposing it into operations and placing those that are eligible for immediate execution in a ready queue. Every pending operator that is waiting for its input dependencies to be resolved, is placed in the "waiting" queue for future processing.
+
+    \section{Iteration and Conditional Execution in TensorFlow}
+Google favors the in-graph approach for integrating dynamic control flow features in TensorFlow and argues that this implementation yields much better performance results compared to the alternative, mainly because it enables the performing of whole-graph optimizations. \cite{Yu:2018} In addition to that, they have chosen to implement the iteration and if-else features by following the "static" approach that was described before. That means, that they are embedding while-loops and if-else constructs inside non-transforming, static graphs and have created a special set of primitive operators that will ensure the correct flow of execution.
 
 These operators, as well as their semantics, are described below:
 
@@ -264,18 +265,41 @@ These operators, as well as their semantics, are described below:
     \begin{itemize}
 
     \item \textit{\textbf{Enter:}} TensorFlow introduces the concept of "frames", which is nothing but a way for describing the context under which a set of computations, composing the body of an iterative construct, will actually take place. Frames are groups of node-instances that are identified by the same shared tag and execute only once under that context. Enter is, essentially, a context-switching operator that forwards its input to a child frame. It is possible that more than one Enter operators may send their inputs to the same frame and in that case only the first one will take the responsibility of creating and initializing it.
+\begin{lstlisting}
+Eval(Enter(d, name), c) = r, where
+	r = (value(d), is_dead(d), tag(d)/name/0)
+\end{lstlisting}
 
     \item \textit{\textbf{NextIteration:}} It is there to create the graph-cycle needed in iteration, in order to express the re-triggering of a while-body's execution. It is similar to the Enter operator, as it also forwards its input to a new, uniquely identified context. Their difference essentialy lies in the way those two operators update the tags of their inputs.
+\begin{lstlisting}
+Eval(NextIteration(d), c) = r, where
+	tag(d) = tag1/name/n
+	r = (value(d), is_dead(d), tag1/name/(n+1))
+\end{lstlisting}
 
     \item \textit{\textbf{Exit:}} It  is responsible for revoking the actions of the corresponding Enter operator, by forwarding its input to the outer-frame.
  Again, multiple "Exit" operators may exist inside the current-frame, so the last of them that is being triggered is also taking the responsibility of destroying the frame in which it belongs.
+\begin{lstlisting}
+Eval(Exit(d, name), c) = r, where
+	r = (value(d), is_dead(d), c.parent.tag)
+\end{lstlisting}
 
     \item \textit{\textbf{Switch:}} It is used for the representation of if-else constructs and it's job is to "direct" the execution to the correct branch. It receives two inputs of which the first one is the data that needs to be propagated to the correct subgraph and the second one is the result of the computed if-else logistics  (predicate). Depending on the predicate's truth value the switch operator sends the data to either its first or its second output. 
 
 In fact, for reasons that concern the support of distributed execution and will be better explained in the following sections,  the data is actually being sent to both branches, equally, 
 except that, the correct output is forwarding the propagated data as "alive" and the wrong one as "dead", which is a phenomenon inofficially described as "deadness propagation".
+\begin{lstlisting}
+Eval(Switch(p, d), c) = (r1, r2), where
+	r1 = (value(d), p || is_dead(d), tag(d))
+	r2 = (value(d), !p || is_dead(d), tag(d))
+\end{lstlisting}
 
-    \item \textit{\textbf{Merge:}} It goes as a pair with the Switch operator and is added to the place where the two branches join, in order to collect the if-else' s generated output. It expects two inputs, of which only one will be valid and forwarded, the one generated by the taken-branch. Merge operator, however, is playing another, significant role in the representation of iterative constructs, i.e. while loops. It is placed as a successor to all the existing Enter/NextIteration operators, so that it can distinguish between the first time we execute the body of a while loop and all the following ones. That is, so that  it will always provide the correct input to the while's body-subgraph. \\\\\\\\
+
+    \item \textit{\textbf{Merge:}} It goes as a pair with the Switch operator and is added to the place where the two branches join, in order to collect the if-else' s generated output. It expects two inputs, of which only one will be valid and forwarded, the one generated by the taken-branch. Merge operator, however, is playing another, significant role in the representation of iterative constructs, i.e. while loops. It is placed as a successor to all the existing Enter/NextIteration operators, so that it can distinguish between the first time we execute the body of a while loop and all the following ones. That is, so that  it will always provide the correct input to the while's body-subgraph. 
+\begin{lstlisting}
+Eval(Merge(d1, d2), c) = r, where
+	r = if is_dead(d1) then d2 else d1
+\end{lstlisting}
 
     \end{itemize}
 
@@ -285,25 +309,43 @@ except that, the correct output is forwarding the propagated data as "alive" and
 \caption{ Dataflow graph for a while loop in TensorFlow}
 \end{figure}
 
-\begin{figure}
-\centering
-\includegraphics[scale=0.85]{figures/opEval}
-\caption{ Evaluation rules for control-flow operators in TensorFlow}
-\end{figure}
+Figures \textit{\textbf{3.1}} and \textit{\textbf{3.2}}  can be found in the "Dynamic Control Flow in Large-Scale Machine Learning" paper  \cite{Yu:2018} where the dynamic control flow support in TensorFlow is being discussed in much more detail.
 
-Figures \textit{\textbf{2.2}}, \textit{\textbf{2.3}} and \textit{\textbf{2.4}} can be found in the "Dynamic Control Flow in Large-Scale Machine Learning" paper  \cite{Yu:2018} where the dynamic control flow support in TensorFlow is being discussed in much more detail. \\
-
+\section{Recursion in TensorFlow}
 As for the case of recursion, TensorFlow's support is still at a rudimentary level. They built a way for allowing users to define recursive function definitions via the python API,  and supported it up until their r.1.4 TensorFlow release. They removed it, however, later on, (possibly termporarily) due to conflicts occured in their future development. Contrary to the other two dynamic control flow features, Google chooses to support functions and thus, recursion, by following the "dynamic approach".  They have created an operator named "Call", that is placed as a node inside the graph and represents the calling of a function. Every such node contains important information that associates it with the definition  of the function that is being called.  "Call" node's job is, essentially,  to replace itself with the body of that function, causing the dynamic expansion of the graph, as many times as needed. The real implementation might be a slight derivation of what was described above but the essence of the approach is exactly the same.
 
-The main disantvantage of this particular approach, has been already discussed in the "Motivation" subsection.
+The main disadvantage of this particular approach, has been already discussed in the "Motivation" subsection.
 
 \begin{flushleft}
-  Below, we present an example of calling functions, expressed as a functional program and the way it will be converted into a dataflow graph and get executed in TensorFlow: \\
+  In figure 3.4, we present an example of calling functions, expressed as a functional program and the way it will be converted into a dataflow graph and get executed in TensorFlow:
+
  \setlength{\parindent}{25ex} $result = f(4) + f(5)$ \\
 $f(x) = g(x+1)$ \\ 
 $g(y) = y$
 \end{flushleft}
 
+The equivalent example, expressed in TensorFlow via the Python API is also presented below:
+
+\begin{lstlisting}
+import tensorflow as tf
+from tensorflow.python.framework import function
+
+@function.Defun(tf.int32)
+def G(y):
+	return y
+
+@function.Defun(tf.int32)
+def MyFunc(x):
+	return G(x+1)
+
+a = tf.constant(4)
+b = tf.constant(5)
+
+result = MyFunc(a) + MyFunc(b)
+
+with tf.Session() as sess:
+	print(sess.run(result))
+\end{lstlisting}
 
 \begin{figure}
 \centering
@@ -314,6 +356,75 @@ $g(y) = y$
 
 \chapter{APPROACH}
 
+    \section{Tagging in Recursion}
+
+As already mentioned before, integrating the static approach requires employing a tagging mechanism that will solve the problem of potentially mixed-up data, in cases when multiple instances of same operations are being executed simultaneously (overlapping recursive function calls or iterations).
+
+Iteration and recursion are nothing but two different mechanisms for triggering the repetitive execution of a certain code-segment (here subgraph). One can say that the first one is, essentially, a subset of the second one, as every possible iteration-loop can be expressed as a tail recursive function. 
+
+In the dynamic approach, we would expect that an iterative construct would trigger the linear expansion of the graph, whereas, some recursive ones, would cause the graph to expand in a tree-like way. That said, we can now have a sense, perhaps, of how the tag, in each case, must be represented. 
+
+Non-formally speaking, in the simple case of one  loop, we have multiple instances of the same subgraph (loop’s body) firing whenever they are triggered, and creating a "chain" as the loop keeps unfolding. In that case, a simple number belonging in the set of natural numbers would suffice as a tag that would make one chain piece distinguishable from the others. However, if we are able, at each given moment, to trigger the simultaneous execution of that particular subgraph an arbitrary amount of times by different call sites, as happens with recursion, that representation would not be satisfactory. Intuitively we would need a more profound way to capture the topological position of each subgraph-instance inside the resulting “function-calls tree” and that would be by using lists of natural numbers with unspecified length.
+
+    \section{Yaghi's Transformation}
+The problem of how recursion can be expressed in static dataflow graphs and the tagging mechanism that needs to be employed in order to track the depth and path of each recursive function call, has already been resolved in past research work and a formal basis for the aforementioned matters has already been provided.  \cite{Rondogiannis:1997}
+
+There has been described a systematic way for producing static dataflow graphs from potentially recursive function definitions based on an algorithm called “Yaghi’s transformation”, proposed by A. Yaghi as a subject for his PhD dissertation, in 1984.
+
+This algorithm provides a method for transforming first-order functional programs into intentional ones which, as the conducted research suggests, can be easily deployed and executed in dataflow architectures running a demand-driven computational model, called Eduction.
+
+Yaghi introduces two operations named \textbf{calli} and \textbf{actuals} which can be thought of as a pair of two common, context-switching operators altering the tags of their inputs and forwarding their computed result to their outputs. The \textbf{calli} operator receives an input, appends its input's tag (list) with i and sends it to its output while the \textbf{actuals} operator reads the head i of its input's tag and uses it to select its ith arguent.
+
+Yaghi's algorithm consists of three discrete steps which are summirized in the paper, as follows:
+    \begin{itemize}
+    \item Let \textbf{f} be a function defined in the source functional program. Number the textual ocurrences of calls to \textbf{f} in the program, starting at 0 (including calls in the body of the definition of \textbf{f}).
+   
+   \item Replace the ith call of \textbf{f} in the program by \textbf{calli(f)}. Remove the formal parameters from the definition of \textbf{f}, so that \textbf{f} is defined as an ordinary individual variable.
+   
+   \item Introduce a new definition for each formal parameter of \textbf{f}. The right hand side of the definition is the operator \textbf{actuals} applied to a list of the actual parameters corresponding to the formal parameter in question, listed in the order in which the calls are numbered.
+    \end{itemize}
+
+
+\begin{flushleft}
+If we apply these steps to this example, that was also used earlier:\\
+ \setlength{\parindent}{25ex} $result = f(4) + f(5)$ \\
+$f(x) = g(x+1)$ \\ 
+$g(y) = y$
+\end{flushleft}
+
+
+\begin{flushleft}
+.. we will end up with this intensional program:\\
+ \setlength{\parindent}{25ex} $result = call_0(f) + f(5)$ \\
+$f = call_0(g)$ \\ 
+$g = y$ \\
+$x = actuals(4,5)$ \\
+$y = actuals(x+1)$ \\
+\end{flushleft}
+
+\begin{flushleft}
+.. which then, can be easily executed by an eductive computational model, as follows:\\
+ \setlength{\parindent}{15ex} $EVAL(call_0(f)+call_1(f), [])$ \\
+$EVAL(call_0(f), []) + EVAL(call_1(f), []) =$ \\ 
+$EVAL(f, [0]) + EVAL(f, [1]) =$ \\ 
+$EVAL(call_0(g), [0]) + EVAL(call_0(g), [1]) =$ \\ 
+$EVAL(g, [0,0]) + EVAL(g, [0,1]) =$ \\ 
+$EVAL(y, [0,0]) + EVAL(y, [0,1]) =$ \\ 
+$EVAL(actuals(x+1), [0,0]) + EVAL(actuals(x+1), [0,1]) =$ \\ 
+$EVAL(x+1, [0]) + EVAL(x+1, [1]) =$ \\ 
+$EVAL(x, [0]) + EVAL(1, [0]) + EVAL(x, [1]) + EVAL(1, [1]) =$ \\ 
+$EVAL(x, [0]) + 1 + EVAL(x, [1]) + 1 =$ \\
+$EVAL(actuals(4,5), [0]) + 1 + EVAL(actuals(4,5), [1]) + 1 =$ \\
+$EVAL(4, []) + 1 + EVAL(5, []) + 1 =$ \\
+$4+1+5+ ) =$ \\
+$11$ \\
+\end{flushleft}
+
+
+
+The above work introduces the idea of expressing tags as integer-lists of arbitrary length and essentially describes the additional, primitive, context switching operators that implement the tagging mechanism we need for the static approach, as mentioned earlier. Applying the ideas that were expressed in that research to dataflow systems that run a data-driven execution model was rather easy, but a formal, theoretical proof of the data-driven “version” should, definitely, be provided.
+
+    \section{Basic Idea}
 We can resolve the problem of integrating recursion in dataflow-based systems, without allowing any graph-transformations at runtime ("static" approach), by first addressing the following critical matters.
 
 We, first, need to establish a way for representing recursive function definitions as dataflow graphs.  That can be easily treated, as already mentioned before, by allowing the occurence of cycles inside those graphs. If a subgraph (set of nodes), represents the computations that compose the body of a function, then we represent a recursive call to that function by creating a cycle between the node that corresponds to the call site and the subgraph itself. That edge unlocks the possibility of  re-triggering the subgraph's computation and thus, re-executing the function as many times as needed, without dynamically transforming the main executable graph.
@@ -545,8 +656,11 @@ The content of this bachelor thesis is supposed to be more dataflow-oriented. Th
 	\begin{longtable}{ l @{\qquad} l }
 	\toprule
 	NKUA    & National and Kapodistrian University of Athens\\
-	NCSR & National Centre for Scientific Research \\
+	NCSR-D & National Centre for Scientific Research-Democritos \\
 	PC & Program Counter \\
+	CPU & Central Processing Unit\\
+	GPU & Graphic Processing Unit\\
+	TPU & Tensor Processing Unit\\
 	\bottomrule
 	\end{longtable}
 \end{center}
