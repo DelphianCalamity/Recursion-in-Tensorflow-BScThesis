@@ -87,7 +87,7 @@
 %
 \abstractEn{
 Dataflow is  an alternative programming paradigm which proposes that every computation is represented as a graph.
-This representation could be thought of, perhaps, as an enhanced version of the classic one because it contains information about both the tasks that need to be carried out and the underlying data dependencies. A dataflow execution model can use this information to execute all the non-dependent code segments out of order and in parallel which can, theoretically, increase the degree of parallelism to the maximum possible level. Dataflow's potential for immense parallelism/distribution has made this model extremely popular in the Machine Learning community where there is  a great number of new dataflow-based frameworks that have been recently developed for this purpose. Embedding dynamic control flow features,  such as if-else constructs, iteration or even recursive function definitions, inside those dataflow graphs, is extremely needed in this field for expressing complex computations and certain kinds of neural networks, however, it is not as trivial as we would like it to be. Two main approaches have been suggested as a solution, in the dataflow community, so far. The first one (dynamic) leads to the creation of graphs that transform themselves on demand, during runtime, while the second one (static) proposes the creation of static, non-transforming graphs that retain their initial form throughout the whole execution. The second approach is quite more profound, as it needs the introduction of a concept called “tagging” in order to work. The various dataflow systems that have recently emerged, follow either the first or the second approach when they need to support such dynamic control flow features. None of them, however, to the best of our knowledge, does follow the second approach when it comes to supporting recursive function definitions, as the tagging mechanism that needs to be employed is considered to be rather complex and possibly is avoided. The subject of this thesis, is the proposal of a systematic way to embed recursive function definitions in static dataflow graphs, based on ideas expressed during the extended research that already has been made regarding this topic, at the past.  A great part of this thesis, has also been the implementation of these ideas in a famous, rapidly growing, dataflow-based framework called TensorFlow, which was made by Google for Machine Learning purposes.
+This representation could be thought of, perhaps, as an enhanced version of the classic one because it contains information about both the tasks that need to be carried out and the underlying data dependencies. A dataflow execution model can use this information to execute all the non-dependent code segments out of order and in parallel which can, theoretically, increase the degree of parallelism to the maximum possible level. Dataflow's potential for immense parallelism/distribution has made this model extremely popular in the Machine Learning community where there is  a great number of new dataflow-based frameworks that have been recently developed for this purpose. Embedding dynamic control flow features,  such as if-else constructs, iteration or even recursive function definitions, inside those dataflow graphs, is  needed in this field for expressing complex computations and certain kinds of neural networks, however, it is not as trivial as we would like it to be. Two main approaches have been suggested as a solution, in the dataflow community, so far. The first one (dynamic) leads to the creation of graphs that transform themselves on demand, during runtime, while the second one (static) proposes the creation of static, non-transforming graphs that retain their initial form throughout the whole execution. The second approach is quite more profound, as it needs the introduction of a concept called “tagging” in order to work. The various dataflow systems that have recently emerged, follow either the first or the second approach when they need to support such dynamic control flow features. None of them, however, to the best of our knowledge, does follow the second approach when it comes to supporting recursive function definitions, as the tagging mechanism that needs to be employed is considered to be rather complex and possibly is avoided. The subject of this thesis, is the proposal of a systematic way to embed recursive function definitions in static dataflow graphs, based on ideas expressed during the extended research that already has been made regarding this topic, at the past.  A great part of this thesis, has also been the implementation of these ideas in a famous, rapidly growing, dataflow-based framework called TensorFlow, which was made by Google for Machine Learning purposes.
 }
 \abstractGr{
 \begin{greek}
@@ -163,8 +163,7 @@ We thought it would be a valuable contribution, for that reason, to investigate 
 
     \subsection{Better Distribution}
  Google's solution for integrating recursion in TensorFlow is actually based on the dynamic approach. Each time another recursive call occurs, the execution engine of TensorFlow is  copying, repeatedly, the graph that corresponds to the body of the callee function at the corresponding call site. This, essentially, is dynamically unfolding recursion causing the graph to expand at runtime. This approach, however, has a major drawback. Dataflow’s nature allows the partitioning of the main graph into multiple subgraphs that can then be deployed in distributed, heterogeneous systems and get executed in parallel without any conflicts. In Google’s provided solution, the initial graph that gets partitioned does not include the bodies of the functions that will be possibly called during the execution. The “calling” of a function is represented with a special node whose main operation is to replace itself with the subgraph that corresponds to the body of that function. Thus, it is inevitable that all the recursive calls of a function will be executed, essentially, in only one machine.  In cases where function bodies/subgraphs are very big or number of occurring recursive calls is huge, the performance results, theoretically, are expected to be rather inferior to the ones yielded by the “static” approach.
-
-Even when execution takes place in only one, local machine and not a cluster, the dynamic approach has, in fact, proven itself to be marginally worse contrary to the static one, as will be discussed in the “Evaluation” section. That could possibly be caused by the additional overhead that causes the repetitive creation/initialization of the same graph.
+Even when execution takes place in only one, local machine and not a cluster, there were some test cases where the dynamic approach had, in fact, proven itself to be marginally worse contrary to the static one, as will be discussed in the “Evaluation” section. That could possibly be caused by the additional overhead that causes the repetitive creation/initialization of the same graph.
 
 
     \subsection{Research Purposes}
@@ -181,11 +180,10 @@ The rest of the thesis is organized as follows:
 
 \textit{Related work} is the section where we examine the approaches followed by other existing dataflow systems regarding this topic.
 
-\textit{Future work} discusses ideas that could possibly extend and improve our current work.
-
 \textit{Evaluation} presents the performance results that occurred from the comparison of the two approaches (dynamic vs static one).
 
-\textit{Conclusions} provides some final conclusions
+\textit{Future work \& Conclusions} discusses ideas that could possibly extend and improve our current work and provides some final conclusions.
+
 
 
 \chapter{BACKGROUND}
@@ -213,12 +211,12 @@ Current dataflow-based frameworks, allow their clients to specify their desired 
 Some known frameworks that follow this approach are  PyTorch \cite{Paszke2017} or DyNet  \cite{ Neubig2017DyNetTD}.
 
 In-graph approach suggests that the dynamic control flow constructs are embedded inside the dataflow graphs. That means, that the dataflow executor is responsible for managing all the iteration steps of the while loop as well as the logistics that will, eventually, decide its termination, without the intervention of the client’s underlying execution engine.
-This approach might be harder to implement but is generally favored due to its noticeably better performance.  \cite{Yu:2018} Having an execution engine that is internally equipped to undesrtand all the characteristics of an iterative construct can be exploited in order to create, initialize, prune and optimize only once the subgraphs that correspond to the bodies of  the while loops during the overall execution which can relieve us from a great overhead.
+This approach might be harder to implement but is generally favored due to its noticeably better performance \cite{Yu:2018}. Having an execution engine that is internally equipped to undesrtand all the characteristics of an iterative construct can be exploited in order to create, initialize, prune and optimize only once the subgraphs that correspond to the bodies of  the while loops during the overall execution which can relieve us from a great overhead.
 
     \subsection{Dynamic vs Static Dataflow Graphs}
-Those who might consider integrating an “in-graph” approach in a dataflow-based system, must concern themselves with two critical matters. First, they need to figure out a way to depict the dynamic control flow constructs in the graph, during its creation. Then, they must ensure that  the system’s execution engine has  knowledge regarding the operators' semantics and is properly equipped to handle that graph during its execution.
+Those who might consider integrating an “in-graph” approach in a dataflow-based system, must concern themselves with two critical matters. First, they need to figure out a way to depict the dynamic control flow constructs in the graph, during its creation. Then, they must ensure that  the system’s execution engine is equipped with knowledge regarding the operators' semantincs  and can properly handle that graph during its execution.
 
-There are two discrete ways that are being followed by various, modern dataflow systems for embedding dynamic control flow inside dataflow graphs, as mentioned in the previous sections. 
+There are two discrete ways that are being followed by various, modern dataflow systems for embedding dynamic control flow inside dataflow graphs, as mentioned in the previous section. 
 
 First one suggests, that inside the graphs created by the client, any dynamic control flow construct is represented as a node whose operation is rather complex compared to all the other primitive operations. Such nodes are responsible for transforming or/and expanding the dataflow graphs at runtime which is the only period when the dynamic control flow decisions (logistics) can be actually resolved. They are, essentially, copying or adding the demanded subgraphs to the main graph the moment it is clear that they need to be (re-) computed. We refer to every such graph that is subject to transformations at runtime, as "dynamic" graph.  For example, conditional execution would be depicted inside a dynamic graph as a special node which chooses, when gets triggered, to replace itself with the body-subgraph of the corresponding taken-branch (Figure \textit{\textbf{2.2}}).
 Note that, in this particular approach, graphs do not contain cycles, as a cycle is nothing but an edge leading back to an already computed subgraph re-triggering its execution. In this solution, every node executes only once. 
@@ -240,7 +238,7 @@ Every time a  recursive function calls itself it initiates the creation of an ac
 Dataflow's execution model allows the instructions to be executed out of order and in parallel. The next set of operations that are to be executed, at any given moment, comprises those that have all their inputs available, that is, nodes whose incoming edges have all received data generated by the computation of previous operations. In such a model, we have neither stack-behaved memory nor side effects (all data is immutable) as every “variable” is instantly propagated to all the operations that depend on its current value, eliminating the need for a stateful environment.  Representing recursive function definitions (or any dynamic control flow feature for that matter) in static, non-transforming dataflow graphs and executing them cannot be treated the same way now.
 If a subgraph (set of nodes), inside the dataflow graph, represents the computations that compose the function’s body, then, intuitively, we would expect that one or more of those nodes (depending on the number of different locations from which this recursive function calls itself) would send their output to the subgraph itself, creating a graph cycle, so that they can possibly re-trigger its execution. What happens though, when we have more than one calls of the same function, executing concurrently?  We have multiple instances of the same operations, awaiting to be triggered by the arrival of data, at the same time. Nothing can guarantee, in this scenario, that an operation instance won’t be triggered by the arrival of data derived by different function calls, hence, the correct execution cannot be ensured and the given results cannot be trusted.
 
-While classic model is gracefully/naturally treating this problem by exploiting the linear memory expansion and making data of the same function calls reside on the same, confined memory locations, dataflow cannot follow, of course, the exact same approach. The equivalent of that solution, would be, to make the flowing data itself hold a piece of information that would indicate the function call from which they were derived. That piece of information is called “tag” in the dataflow community \cite{Nikhil:2000}, and is introduced as the means for overcoming the difficulties described above.\\
+While classic model is gracefully/naturally treating this problem by exploiting the linear memory expansion and making data of the same function calls reside on the same, confined memory locations, dataflow cannot follow, of course, the exact same approach. The equivalent of that solution, would be, to make the flowing data themselves hold a piece of information that would indicate the function call from which they were derived. That piece of information is called “tag” in the dataflow community \cite{Nikhil:2000}, and is introduced as the means for overcoming the difficulties described above.\\
  The tag can be anything one desires, as long as it can uniquely “paint” the data, based on the context under which they were derived. 
 Now,  in tagged dataflow , the execution of a node will take place, only the moment when all its incoming edges have received data that belong in the same context.
     
@@ -259,10 +257,10 @@ TensorFlow can run on multiple CPUs and GPUs composing a cluster. That allows us
 
 After the client constructs the dataflow graph and initiates its execution, the graph gets pruned so that all the unecessary graph components that do not contribute to the general computation get removed (that is redundant nodes that will never be executed). Then, the resulting subgraph gets optimized by undergoing several transformation procedures and gets partitioned, so that it can be deployed on multiple devices including CPUs, GPUs, or TPUs which are application-specific processing units dedicated to TensorFlow. TensorFlow's execution engine in handling every partition by decomposing it into operations and placing those that are eligible for immediate execution in a ready queue. Every pending operator that is waiting for its input dependencies to be resolved, is placed in the "waiting" queue for future processing. Whenever an operator receives an input generated by the computation of another operator, it (re-) examines whether or not it is eligible for execution and it resides on the "ready" or the "waiting" queue, respectively. For the termination of the overall computation to take place, there must be no pending operators inside the waiting and ready queues.
 In distributed runtime, there is a main process called "master" that handles the graph's processing before its final execution. Master is aware of all the devices that are available inside the cluster 
-and  applies a node-placement algorithm to the graph which places each of its nodes to one such device. Then, it partitions the overall graph with respect to those placement choices and it sends the generated subgraphs to the workers that run on the corresponding machines. Workers are responsible for executing the operators of the subgraphs they 've been given and communicate with each other and with the master (who also gets assigned to a subgraph and participates in the execution) in order to transfer their generated data. For the transmission of data  between different tasks/processes TensorFlow uses multiple protocols suitable for every situation depending on whether the tasks run on the same machine or on seperate ones.
+and  applies a node-placement algorithm to the graph which places each of its nodes to one such device. Then, it partitions the overall graph with respect to those placement choices and it sends the generated subgraphs to their assigned workers that may run on different machines. Workers are responsible for executing the operators of the subgraphs they 've been given and communicate with each other and with the master (who also gets assigned to a subgraph and participates in the execution) in order to transfer their generated data. For the transmission of data  between different tasks/processes TensorFlow uses multiple protocols suitable for every situation depending on whether the tasks run on the same machine or on seperate ones.
 
     \section{Iteration and Conditional Execution in TensorFlow}
-Google favors the in-graph approach for integrating dynamic control flow features in TensorFlow and argues that this implementation yields much better performance results compared to the alternative, mainly because it enables the performing of whole-graph optimizations. \cite{Yu:2018} In addition to that, they have chosen to implement the iteration and if-else features by following the "static" approach that was described before. That means, that they are embedding while-loops and if-else constructs inside non-transforming, static graphs and have created a special set of primitive operators that will ensure the correct flow of execution.
+Google favors the in-graph approach for integrating dynamic control flow features in TensorFlow and argues that this implementation yields much better performance results compared to the alternative, mainly because it enables the performing of whole-graph optimizations \cite{Yu:2018}. In addition to that, they have chosen to implement the iteration and if-else features by following the static approach.That means, that they are embedding while-loops and if-else constructs inside non-transforming, static graphs and have created a special set of primitive operators that will ensure the correct flow of execution.
 
 These operators, as well as their semantics, are described below:
 
@@ -301,7 +299,7 @@ Eval(Exit(d, name), c) = r, where
 	r = (value(d), is_dead(d), c.parent.tag)
 \end{lstlisting}
 
-    \item \textit{\textbf{Switch:}} It is used for the representation of if-else constructs and it's job is to "direct" the execution to the correct branch. It receives two inputs of which the first one is the data that needs to be propagated to the correct subgraph and the second one is the result of the computed if-else logistics  (predicate). Depending on the predicate's truth value the switch operator sends the data to either its first or its second output. 
+    \item \textit{\textbf{Switch:}} It is used for the representation of if-else constructs and it's job is to direct the execution to the correct branch. It receives two inputs of which the first one is the data that needs to be propagated to the correct subgraph and the second one is the result of the computed if-else logistics  (predicate). Depending on the predicate's truth value the switch operator sends the data to either its first or its second output. 
 
 In fact, for reasons that concern the support of distributed execution and will be better explained in the following sections,  the data is actually being sent to both branches, equally, 
 except that, the correct output is forwarding the propagated data as "alive" and the wrong one as "dead", which is a phenomenon inofficially described as "deadness propagation".
@@ -325,8 +323,8 @@ Eval(Merge(d1, d2), c) = r, where
 Figures \textit{\textbf{3.1}} and \textit{\textbf{3.2}}  can be found in the "Dynamic Control Flow in Large-Scale Machine Learning" paper  \cite{Yu:2018} where the dynamic control flow support in TensorFlow is being discussed in much more detail. 
 
 \section{Recursion in TensorFlow}
-As for the case of recursion, TensorFlow's support is still at a rudimentary level. They built a way for allowing users to define recursive function definitions via the python API,  and supported it up until their r.1.4 TensorFlow release. They removed it, however, later on, (possibly termporarily) due to conflicts occured in their future development. Contrary to the other two dynamic control flow features, Google chooses to support functions and thus, recursion, by following the "dynamic approach".  They have created an operator named "Call", that is placed as a node inside the graph and represents the calling of a function. Every such node contains important information that associates it with the definition  of the function that is being called.  "Call" node's job is, essentially,  to replace itself with the body of that function, causing the dynamic expansion of the graph, as many times as needed. The real implementation might be a slight derivation of what was described above but the point is exactly the same.
-The main disadvantage of this particular approach, as already discussed in the "Motivation" subsection, is that a dynamic graph  cannot contain the subgraphs that correspond to the recursive callee functions, thus, they cannot be included in the partitioning. Every special node representing the calling of a function resides on one partition and initiates the function's execution by just one worker. That means, that the execution of functions cannot be shared amongst multiple machines.
+As for the case of recursion, TensorFlow's support is still at a rudimentary level. They built a way for allowing users to define recursive function definitions via the python API,  and supported it up until their r.1.4 TensorFlow release. They removed it, however, later on, (possibly termporarily) due to conflicts occured in their future development. Contrary to the other two dynamic control flow features, Google chooses to support functions and thus, recursion, by following the dynamic approach.  They have created an operator named "Call", that is placed as a node inside the graph and represents the calling of a function. Every such node contains important information that associates it with the definition  of the function that is being called.  "Call" node's job is, essentially,  to replace itself with the body of that function, causing the dynamic expansion of the graph, as many times as needed. The real implementation might be a slight derivation of what was described above but the point is exactly the same.
+The main disadvantage of this particular approach, as already discussed in the "Motivation" subsection, is that a dynamic graph  cannot contain the subgraphs that correspond to the recursive callee functions, thus, they cannot be included in the partitioning. Every special node representing the calling of a function resides on one partition and initiates the function's execution by just one worker. That means, that the execution of functions cannot be easily shared amongst multiple machines.
 
 \begin{flushleft}
   In figure 3.4, we present an example of calling functions, expressed as a functional program and the way it will be converted into a dataflow graph and get executed in TensorFlow:
@@ -434,7 +432,7 @@ $11$ \\
 \end{flushleft}
 
 
-The above work introduces the idea of expressing tags as integer-lists of arbitrary length and essentially describes the additional, primitive, context switching operators that implement the tagging mechanism we need for the static approach. Applying the ideas that were expressed in that research to dataflow systems that run a data-driven execution model was rather easy, but a formal, theoretical proof of the data-driven “version” should, definitely, be provided.
+The above work introduces the idea of expressing tags as integer-lists of arbitrary length and essentially describes the additional, primitive, context switching operators that implement the tagging mechanism we need for the static approach. Applying the ideas that were expressed in that research to dataflow systems that run a data-driven execution model was rather easy, but a formal, theoretical proof of the data-driven version should, definitely, be provided.
 
     \section{Basic Idea}
 We can resolve the problem of integrating recursion in dataflow-based systems, without allowing any graph-transformations at runtime (static approach), by first addressing the following critical matters.
@@ -485,7 +483,7 @@ That said, we can now be more specific about the semantics of  "Call" and "Retur
 \caption{Two calls to a simple, non-recursive function}
 \end{figure}
 
-Note that, the  graph in \textit{\textbf{Figure 4.2}} is still incomplete, as it needs an additional operator that will help distinguish between the inputs provided by different call-sites. The classic "Merge" operator whose semantics are described in the majority of  the existing "dataflow" papers (it was also mentioned in the "Iteration and Conditional Execution in TensorFlow" subsection as it is used in TensorFlow, too), is ideal for this job. It is placed as a successor to all the "Call" operators and it chooses, each time, to accept only one input.
+Note that, the  graph in \textit{\textbf{Figure 4.2}} is still incomplete, as it needs an additional operator that will help distinguish between the inputs provided by different call-sites. The classic "Merge" operator whose semantics are described in the majority of  the existing dataflow papers (it was also mentioned in the "Iteration and Conditional Execution in TensorFlow" subsection as it is used in TensorFlow, too), is ideal for this job. It is placed as a successor to all the "Call" operators and it chooses, each time, to accept only one input.
 
 Note also, that everything discussed above, applies to cases where we have mutually recursive function calls, too. 
 
@@ -497,7 +495,7 @@ In  \textit{\textbf{Figure 4.3}}, we present a more complex and interesting exam
 \caption{Factorial}
 \end{figure}
 \chapter{IMPLEMENTATION}
-In the previous section, our aim was to provide a more general and abstract description of the "static" approach and to present the fundamental basis of our implementation so that it can be, theoretically, applied to all the existing dataflow frameworks. 
+In the previous section, our aim was to provide a more general and abstract description of the static approach and to present the fundamental basis of our implementation so that it can be, theoretically, applied to all the existing dataflow frameworks. 
 
 In this section, however, we present all the technical details that concern the integration of that approach in TensorFlow's infrastructrure.
 
@@ -516,15 +514,17 @@ As already mentioned before, TensorFlow's  way of dealing with functions and thu
 As shown in \textit{\textbf{Figure 5.1}}, when this algorithm detects a special node calling a function, it replaces it with a new pair of "Call/Return" operators whose semantics are identical to those we described above. The algorithm must ensure that the bodies of all the callee functions are embedded inside the graph at least once (inlining).
 When a "Call/Return" pair takes the place of a special node, we must attach all the incoming edges of that node to the inputs of the "Call" operator. Respectively, all the outgoing edges of that node will constitute the outputs of the corresponding "Return" operator. Function transformation also adds the "Merge" operators that are needed in case we might have multiple calls to the same function, from different call-sites. It places them between the "Call" operators and the nodes that expect the arguments of the function, for reasons already mentioned.
 
+
+
 \begin{figure}
 \centering
 \includegraphics[scale=0.65]{figures/transformation}
 \caption{Function Transformation}
 \end{figure}
 
-    \subsection{Functions with multiple arguments}
+    \subsection{Functions with multiple arguments/outputs}
 
-Every "Call" operator, as described until now, must first gather all the function's arguments before propagating them to the nodes that need them inside the body of that function. Respectively, "Return" operator is waiting to gather all the function's returning nodes before propagating them to the outer-graph. This is, however, a limiting factor for the potential parallelism that can be achieved. Similar to what Google already does for the "Enter/Exit" operators to cure this problem, we break every "Call" and "Return" operator into multiple ones, with each one of them corresponding to a single/unique function argument/returning node. That way we can increase the number of overlapping function calls, during the execution. (\textit{\textbf{Figure 5.2}})
+Every "Call" operator, as described until now, must first gather all the function's arguments before propagating them to the nodes that need them inside the body of that function. Respectively, "Return" operator is waiting to gather all the function's returning nodes before propagating them to the outer-graph. This is, however, a limiting factor for the potential parallelism that can be achieved. Similar to what Google already does for the "Enter/Exit" operators to cure this, we break every "Call" and "Return" operator into multiple ones, with each one of them corresponding to a single/unique function argument/returning node. That way we can increase the number of overlapping function calls, during the execution. (\textit{\textbf{Figure 5.2}})
 
 \begin{figure}[h]
 \centering
@@ -571,6 +571,9 @@ with tf.Session() as sess:
 \ \\
 
 \textit{*TensorBoard is a visualization tool, built by Google. It has several utilities but we used it extensively for visualizing the generated TensorFlow graphs which was extremely helpful for studying them and debugging our code.}
+
+\  \\
+\textit{In \textbf{Appendix A}, we present the function transformation algorithm expressed in pseudocode.}
 
 \begin{figure}
 \centering
@@ -621,24 +624,39 @@ In our implementation for recursion, whenever a call to some function occurs, a 
     \subsection{Control of parallelism in Recursion}
 Something that should be noted is, that, contrary to the case of iteration, the execution of non-tail recursive functions imposes what might constitute a significant performance issue.
 We have no full control of parallelism. That is, we cannot impose a limit to how many calls of a recursive function can execute in the machine, at the same time.
-Ιt is easy to specify a maximum number of overlapping iteration steps  because the execution of an iteration step that exceeds the limit can simply be stalled (TensorFlow does such thing for limiting parallelism). However, in cases where we are dealing with non-tail recursive functions, the execution of one function-call depends on that of another one and those dependencies between parent-children function calls can be arbitrarily long and go on until we reach a base case. Therefore, imposing similar parallelism limitations would not let us have full paralellism control as happens with iteration.
+Ιt is easy to specify a maximum number of overlapping iteration steps  because the execution of an iteration step that exceeds the limit can simply be stalled (TensorFlow does such thing for limiting parallelism). However, in cases where we are dealing with non-tail recursive functions, the execution of one function-call depends on that of another one and those dependencies between parent-children function-calls can be arbitrarily long and go on until we reach a base case. Therefore, imposing similar parallelism limitations would not let us have full paralellism control as happens with iteration and other techniques should possibly be employed.
 
 
     \section{Distributed Execution}
 
-Executing graphs without deploying them on clusters is not wise in terms of performance.  Using dataflow systems only for local exeuction not only does not exploit their immense potential  for parallelism/distribution but also yields slower performance results compared to other classic systems, as the overhead that they impose by trying to emulate the dataflow computational model is very significant. 
+Executing graphs without deploying them on clusters is not wise in terms of performance.  Using dataflow systems only for local execution not only does not exploit their immense potential  for distribution but also, possibly, yields no much better performance results compared to other classic, multithreaded systems, as the overhead that they impose by trying to emulate the dataflow computational model is significant. 
 That is why, implementing a dynamic control flow approach that favors the distributed execution is extremely important. 
 
-We already saw that, the resulting graphs in static approach contain the bodies of any existing, callee functions. That means that, contrary to TensorFlow's approach, we are now able to include these subgraphs in the partitioning and assign the function nodes to be executed on different machines, in ways that will improve performance the most.
+We already said that, the resulting graphs in static approach contain the bodies of any existing, callee functions. That means that, contrary to TensorFlow's approach, we are now able to include these subgraphs in the partitioning and assign the function nodes to be executed on different devices, in ways that will improve performance the most.
 
 The partitioning of a recursive function definition, however, as well as that of any other dynamic control flow construct  when we follow the static approach, is not that easy to perform in TensorFlow.
 TensorFlow's design allows the execution of each partition to make progress independently, without conforming to constraints imposed by a centralized coordinator \cite{Yu:2018}. That maximizes the potential for better performance, but makes the partitioning a challenging procedure.
 
-Remember that, in static approach, any subgraph corresponding to the body of a while loop or a recursive function, is provided with a tagging mechanism that will create/destroy frames and produce different contexts under which those computations will take place. This mechanism is nothing but an additional set of primitive, context switching operators which are, also, subject to partitioning. A partition, however, cannot include any partially composed "mechanisms" as this would cause the incorrect generation of frames/tags, inside a machine, during execution. We have to make sure that, every partition that contains nodes that will be executed under different contexts/frames, will also contain all the necessary mechanisms for generating that frames.
 
-In order to add support for distributed execution, in our implementation for recursion, we adopted a similar solution to the one Google already proposes for the case of iteration, yet more generalized. Google's solution keeps track of all the iterative constructs that are embedded in a graph as well as their mechanisms for generating and destroying frames. Whenever a loop is "shared" between multiple partitions, the corresponding mechanism, referred to as control-loop state machine,  will be added to all of them. A simple control-loop state machine consists of an Enter, a NextIteration, a Merge and a Switch operator as shown in  \textit{\textbf{Figure 4.3}} where we present an example also found in the "Dynamic Control Flow in Large-Scale Machine Learning" paper \cite{Yu:2018}.
+    \subsection{State Machines}
 
-However, in case of recursion, the form of a "control-recursion" state machine is slightly more complex. Here, we may have multiple conditional branches, with each one of them, leading either to a base case or a simple/mutually recursive call or a simple call to a different possibly recursive function e.t.c. What we do in order to extract the correct form of the state machines in every case, is traversing the graph and capturing all the special operators that constitute the dynamic control flow's backbone as well as the way they are connected to each other. When traversing the graph we ignore common and non context-switching operators as they will neither be included in the eventual state machine nor they will give us important information about the dynamic control flow construct's structure. We take into account the Call, Return, Switch, Merge operators and all of them, with the exception of "Return" nodes, will be added to the state machine that will eventually  be copied to all the appropriate partitions. The way these operators will be connected to each other, inside the state machine, is inferenced during the graph's traversal.
+In static approach, every iterative or recursive construct that is embedded inside the dataflow graph, is associated to a mechanism that will create and destroy frames.
+Remember that, those generated frames are uniquely identified instances of the iteration/function bodies-subgraphs.
+
+If a function-subgraph is shared across multiple partitions then all of them must be equipped with that necessary mechanism that will generate all the possible frames/contexts under which that function may be executed. 
+
+We refer to that mechanism as 'state machine' and it is, essentially, a group of nodes, appropriately connected to each other that keeps track of the path of execution and generates the correct contexts/frames for that function. 
+
+    \subsection{Control Loop}
+In order to add support for distributed execution, in our implementation for recursion, we adopted a similar solution to the one Google already proposes for the case of iteration, yet more generalized. Google's solution keeps track of all the iterative constructs that are embedded in a graph as well as their mechanisms for generating and destroying frames. Whenever a loop is shared between multiple partitions, the corresponding mechanism, referred to as control-loop state machine,  will be added to all of them so that they can keep track of the path of execution and emulate the generation of frames.
+ A simple control-loop state machine consists of an Enter, a NextIteration, a Merge and a Switch operator as shown in  \textit{\textbf{Figure 5.3}} where we present an example also found in the "Dynamic Control Flow in Large-Scale Machine Learning" paper \cite{Yu:2018}.
+
+    \subsection{Control Recursion}
+However, in case of recursion, the form of a "control-recursion" state machine is slightly more complex.  Remember that iteration is a subcase of recursion. In a while-loop, we either have to re-compute its body or we terminate its execution.
+
+Here we may have multiple conditional branches, with each one of them, leading either to the recursion's base case or a simple/mutually recursive call or a simple call to a different possibly recursive function e.t.c. 
+
+What we do in order to extract the correct form of the state machines in every case, is traversing the graph and capturing all the special operators that constitute the dynamic control flow's backbone as well as the way they are connected to each other. When traversing the graph we ignore common and non context-switching operators as they will neither be included in the eventual state machine nor they will give us important information about the dynamic control flow construct's structure. We take into account the Call, Return, Switch, Merge operators and all of them, with the exception of "Return" nodes, will be added to the state machine that will eventually  be copied to all the appropriate partitions. The way these operators will be connected to each other, inside the state machine, is inferenced during the graph's traversal.
 
 \begin{figure}
 \centering
@@ -647,15 +665,19 @@ However, in case of recursion, the form of a "control-recursion" state machine i
 \end{figure}
 
 
+    \subsection{Send/Receive}
+As shown in \textit{\textbf{Figure 5.4}}, whenever two connected nodes  reside on two different partitions, TensorFlow creates and places between them, two additional special operators that handle the transmission of the data via the network. These nodes, named "Send"  and "Receive", get connected to the nodes that send the data and receive it, respectively and each one of them resides on the same partition as its connected node does. 
 
-As shown in \textit{\textbf{Figure 4.3}}, whenever two connected nodes  reside on two different partitions, TensorFlow creates and places between them, two additional special operators that handle the transition of the data via the network. These nodes, named "Send"  and "Receive", get connected to the nodes that send the data and receive it, respectively and each one of them resides on the same partition as its connected node does. 
 
-We already made a reference, in a previous section, to a phenomenon called deadness propagation. In cases where a conditional branch is not taken, the nodes that compose it are being executed anyway. The difference is that these nodes do not perform computations. They are considered to be "dead" and all the outputs they generate are propagated as "dead", too. 
-The reason why this is happening, is  because "Receive" operators do not formally have any incoming edges and that makes them qualified for immediate execution. Their computation is terminated the moment they receive data from its corresponding "Send" operators that belong in other partitions. However, there may exist "Receive" operators, that have been triggered to wait for data generated by nodes that belong in non-taken branches. Normally, those operators would block indefinately, as they would never reveive any data, but now, with deadness propagation, they will accept data tokens indicated as dead and their execution will be officially terminated.
+    \subsection{Deadness Propagation}
+We already made a reference, in "TensorFlow" section, to a phenomenon called deadness propagation. In cases where a conditional branch is not taken, the nodes that compose it are being executed anyway. The difference is that these nodes do not perform computations. They are considered to be "dead" and all the outputs they generate are propagated as "dead", too. 
+The reason why this is happening, is  because "Receive" operators do not formally have any incoming edges and that makes them qualified for immediate execution. Their computation is terminated the moment they receive data from their corresponding "Send" operators that belong in other partitions. However, there may exist "Receive" operators, that have been triggered to wait for data generated by nodes that belong in non-taken branches. Normally, those operators would block indefinately, as they would never reveive any data, but now, with deadness propagation, they will accept data  indicated as dead and their execution will be officially terminated.
 
-In the case we are dealing with, in our implementation, we may have conditional branches that contain simple/mutually recursive calls. The nodes of these branches are  also expected to generate dead data in case the branches are not taken, so we have to ensure somehow, that deadness will manage to get propagated through the callee recursive functions, too. This, however, constitutes an issue, as the recursive "Call" operators might cause the propagation to get caught in an endless loop or freeze in general. We are treating this by inserting a control-edge that directly connects  the "Call" operator to the corresponding "Return". So, now, "Call" manages to propagate deadness immediately through the "Return" operator. 
+    \subsection{Deadness Propagation Through Recursive Functions}
 
-\textit{Control edges are edges that do not transfer data. They are only added between two nodes in order to impose ordering constraints.}
+In the case we are dealing with, in our implementation, we may have conditional branches that contain simple/mutually recursive calls. The nodes of these branches are  also expected to generate dead data in case the branches are not taken, so we have to ensure somehow, that deadness will manage to get propagated through the callee recursive functions, too. This, however, constitutes an issue, as the recursive "Call" operators might cause the propagation to get caught in an endless loop or freeze in general. We are treating this by inserting a control-edge\textbf{*} that directly connects  the "Call" operator to the corresponding "Return". So, now, "Call" manages to propagate deadness immediately through the "Return" operator. 
+
+\textit{*Control edges are edges that do not transfer data. They are only added between two nodes in order to impose ordering constraints.\\\\\\\\}
 
 \begin{figure}
 \centering
@@ -663,9 +685,10 @@ In the case we are dealing with, in our implementation, we may have conditional 
 \caption{Distributed execution of Factorial}
 \end{figure}
 
-Note that, \textit{\textbf{Figure 4.4}} is an informal example of factorial graph's partitioning. The formal partitions/graphs, as generated by TensorBoard, are more detailed and contain a lot of dirty information that would only distract the reader from understanding the essence of this example. 
 
-It is obvious that our implementation is a generalized version of Googles'. 
+    \subsection{Factorial's Partitioning}
+
+Note that, \textit{\textbf{Figure 5.5}} is an informal example of factorial graph's partitioning. The formal partitions/graphs, as generated by TensorBoard, are more detailed and contain a lot of dirty information that would only distract the reader from understanding the essence of this example.  
 
 Below, we present some details regarding the partitioning, in the previous example:
     
@@ -677,19 +700,126 @@ Below, we present some details regarding the partitioning, in the previous examp
     \item We like to think of  the state machines as the dynamic control flow construct's backbone. It is the minimum set of special nodes that  is able to emulate the correct generation of frames during execution.
     \end{itemize}
 
-
+\textit{In \textbf{Appendix B}, we present an example of factorial's partitioning expressed in TensorFlow via the Python API.}
 
 
 \chapter{EVALUATION}
 
+Our lack of support for the 'automatic differentiation' feature, as will be mentioned below, blocks us from providing a more formal comparison between our approach and Googles', based on TensorFlow's real-life applications. 
+Our examples included some classic benchmarcks of recursive or mutually recursive functions which were tested, mainly, in local execution.
+
+Evaluating our implementation is still a work in progress. However, our goal in this section, within this bachelor thesis, is to provide evidence that “tagged” approach can be retro-fitted in an existing generic (and not tailor-made for that purpose), sophisticated engine with basically  little or  none overhead. There are  many cases, even, as shown below, where static approach is much better in terms of performance than  Google's dynamic one.
+
+The two approaches are basically comparable in local execution as both of them impose equal overhead, on different occasions.
+However, the repetitive creation/initialization of the same graph in the dynamic approach, makes us believe that the static one could have the potential to surpass it in performance, given the appropriate optimization techniques regarding the manipulation of frames and the management of tags. 
+
+Also, as we already mentioned, static approach has better potential in distributed runtime as the definitions of the callee-functions are able to participate in the partitioning and thus, their execution can be shared between multiple workers. Distributing the execution of functions in dynamic approach, on the other hand, can be somewhat troublesome, if not impossible, without significantly increasing the overhead.
+
+
+\begin{table}[h!]
+\centering
+
+\begin{tabular}{ |p{3cm}||p{2cm}|p{3cm}|p{3cm}||p{2cm}|  }
+
+ \hline
+ \multicolumn{5}{|c|}{Fibonacci} \\
+ \hline
+ 	& Result &Static (s)&Dynamic (s)&Speeding\\
+ \hline
+ fib(24) & 75025      &0,812377    &   0,990659 &   18,00\%\\
+ fib(25) & 121393    &1,258550    &1,619930    &   22,31\%\\
+ fib(26) & 196418    & 2,126620   &  2,571740  &   17,31\%\\
+ fib(27) & 317811    & 3,294910   &  2,571740  &   21,15\%\\
+ fib(28) & 514229    & 5,337590   &6,738720    &   20,79\%\\
+ fib(29) & 832040    & 8,613920   &10,93650   &   21,24\%\\
+ fib(30) & 1346269  & 13,96830 &17,80130  &   21,53\%\\
+ fib(31) & 2178309  & 22,71710 &28,61000  &   20,60\%\\
+ fib(32) & 3524578  & 37,44630 &46,85490  &   20,08\%\\
+ fib(33) & 5702887  & 61,28730 &75,64640  &   18,98\%\\
+ \hline
+\end{tabular}
+\caption{Fibonacci}
+\label{table:1}
+\end{table}
+
+
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{ |p{3cm}||p{2cm}|p{3cm}|p{3cm}||p{2cm}|  }
+
+ \hline
+ \multicolumn{5}{|c|}{Ackermann} \\
+ \hline
+ 	& Result &Static (s)&Dynamic (s)&Speeding\\
+ \hline
+ Ack(3, 3) & 61      &0,088524    &  0,117663    &   24,76\%\\
+ Ack(3, 4) & 125    &0,348156    &  0,502658    &  30,74\%\\
+ Ack(3, 5) & 253    & 1,510960   &  2,094950    &   27,88\%\\
+ Ack(3, 6) & 509    & 6,165240   &  8,322080    &   25,92\%\\
+ Ack(3, 7) & 1021  & 25,48890   &  33,14740  &   23,10\%\\
+ Ack(3, 8) & 2045  &100,8820    &  128,9550  &  21,77\%\\
+ \hline
+\end{tabular}
+\caption{Ackermann}
+\label{table:1}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{ |p{3cm}||p{2cm}|p{3cm}|p{3cm}||p{2.5cm}|  }
+
+ \hline
+ \multicolumn{5}{|c|}{Takeuchi} \\
+ \hline
+ 	& Result &Static (s)&Dynamic (s)&Speeding\\
+ \hline
+ Tak(24,16,8) & 9    &  18,881400   &  16,07500     &  -17,46\%\\
+ Tak(25,16,8) & 16  &  29,549000   &  25,39410     &  -16,36\%\\
+ Tak(26,16,8) & 9    &  45,218000   &  38,72190    &   -16,78\%\\
+ Tak(27,16,8) & 16  &  67,757100   &  57,87620    &   -17,07\%\\
+ Tak(27,17,8) & 9    &  188,50600  & 159,7780   &  -17,98\%\\
+ \hline
+\end{tabular}
+\caption{Takeuchi}
+\label{table:1}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{ |p{3cm}||p{2cm}|p{3cm}|p{3cm}||p{2cm}|  }
+
+ \hline
+ \multicolumn{5}{|c|}{Primes} \\
+ \hline
+ 	& Result &Static (s)&Dynamic (s)&Speeding\\
+ \hline
+ Primes(7500)   & 42209  &13,50220    & 13,45770 &   -0,33\%\\
+ Primes(8000)   & 45161  &14,83550    &  14,78420  &  -0,35\%\\
+ Primes(8500)   & 48137  & 16,26770   &  16,07610  &  -1,19\%\\
+ Primes(9000)   & 51077  & 17,55610   & 17,34800   &  -1,20\%\\
+ Primes(9500)   & 54047  & 18,86810   &  18,91230  &   0,23\%\\
+ Primes(10000) & 57077  &20,63630    &  20,37830  &  -1,27\%\\
+ \hline
+\end{tabular}
+\caption{Primes}
+\label{table:1}
+\end{table}
+
+\ \\
+\textit{In \textbf{Appendix C}, we present the code of all the above test cases expressed in TensorFlow via the Python API.}
 
 \chapter{RELATED WORK}
 
 Most of the existing dataflow systems provide support for dynamic control flow features, one way or another. 
-Some, as Torch \cite{Torch}, Chainer \cite{Chainer_learningsys2015} or PyTorch \cite{Paszke2017} follow the out-of-graph approach and depend on the client-side language's underlying execution engine for handling such constructs but this lacks efficiency as our ability to perform optimizations on the overall graphs is significantly limited. Other systems, such as Theano \cite{Theano1}, follow the in-graph approach but the majority of them imposes limitations to the number of dynamic control flow constructs or cases that can be actually supported. 
+Some, as Torch \cite{Torch}, Chainer \cite{Chainer_learningsys2015} or PyTorch \cite{Paszke2017} follow the out-of-graph approach and depend on the client-side language's underlying execution engine for handling such constructs but this lacks efficiency as our ability to perform optimizations on the overall graphs is significantly limited this way. 
+
+Other systems, such as Theano \cite{Theano1}, follow the in-graph approach but most of them impose limitations to the number of dynamic control flow constructs or cases that can be actually supported. 
 
 A relatively new research \cite{Jeong:2018} also proposes a systematic way for integrating recursion in dataflow systems and provides an implementation for TensorFlow, too. However, 
-this implementation basically follows the dynamic approach which was already implemented in TensorFlow. That work's main contribution was the fact that they provided an implementation for the \lq automatic differentiation\rq  \ feature, too, so they could provide some solid evaluation results for examples with recursive neural networks.
+this implementation basically follows the dynamic approach which was already implemented in TensorFlow. That work's main contribution was the fact that they provided an implementation for the \lq automatic differentiation\rq  \ feature  so they could provide some solid evaluation results for examples with recursive neural networks.
+
+
 
 \chapter{FUTURE WORK \& CONCLUSIONS}
 
@@ -703,7 +833,7 @@ An interesting extension to our work would be to investigate ways of defining hi
 Automatic Differentiation is a feature that automatically inserts backpropagation operations in dataflow graphs. Backpropagation is an algorithm needed for training neural networks and if not for that feature, the user is obligated to manually construct these operations. Its integration is a necessary extension to our implementation as TensorFlow is mainly a  Machine Learning tool and without it we can't use it for its real-life applications.
 
     \section{Conclusions}
-The main goal of this project was to apply the ideas expressed in this \cite{Rondogiannis:1997} paper to an existing dataflow-based framework. The reason why TensorFlow was chosen, is because of its rapidly-growing fame and the fact that it is open-sourced. Another important reason is that TensorFlow already follows the static approach for supporting conditional and iterative execution. Yaghi's transformation and the aforementioned research  served as a guide to us, throughout the whole implementation.  However, for the practical part of our work, which was the development,  Google's support for iteration was a significant benchmark. This project can be thought of, perhaps, as an extension of Google's work for supporting dynamic control flow features. The reason why the "static" approach has not been already followed, in TensorFlow, for the support of functions, too,  is more or less a mystery to us.
+The main goal of this project was to apply the ideas expressed in this \cite{Rondogiannis:1997} paper to an existing dataflow-based framework. The reason why TensorFlow was chosen, is because of its rapidly-growing fame and the fact that it is open-sourced. Another important reason is that TensorFlow already follows the static approach for supporting conditional and iterative execution. Yaghi's transformation and the aforementioned research  served as a guide to us, throughout the whole implementation.  However, for the practical part of our work, which was the development,  Google's support for iteration was a significant benchmark. This project can be thought of, perhaps, as an extension of Google's work for supporting dynamic control flow features. The reason why the static approach has not been already followed, in TensorFlow, for the support of functions, too,  is more or less a mystery to us.
 
 In this work,  we proposed a systematic way for embedding recursive function definitions in static dataflow graphs. We described the form of these graphs and the additional set of context-switching operators that enable their correct execution. We also presented some of the issues we encountered while implementing everything in TensorFlow, as well as the solutions we came up with in order to overcome these obstacles.
 
@@ -719,7 +849,7 @@ The content of this bachelor thesis is supposed to be more dataflow-oriented. Th
 	\begin{longtable}{ l @{\qquad} l }
 	\toprule
 	NKUA    & National and Kapodistrian University of Athens\\
-	NCSR-D & National Centre for Scientific Research-Democritos \\
+	NCSR-D & National Centre for Scientific Research-Demokritos \\
 	PC & Program Counter \\
 	CPU & Central Processing Unit\\
 	GPU & Graphic Processing Unit\\
@@ -729,18 +859,190 @@ The content of this bachelor thesis is supposed to be more dataflow-oriented. Th
 \end{center}
 
 % appendix
-%\begin{appendix}
+\begin{appendix}
 % mark the beginning of the appendix
-%\appendixstartedtrue
+\appendixstartedtrue
 
 % add appendix line to ToC
-%\phantomsection
-%\addcontentsline{toc}{chapter}{APPENDICES}
+\phantomsection
+\addcontentsline{toc}{chapter}{APPENDICES}
 
-%\chapter{FIRST APPENDIX}
 
-%\end{appendix}
+\chapter{FUNCTION TRANSFORMATION}
 
+\chapter{FACTORIAL DISTRIBUTED}
+
+\begin{lstlisting}
+# Simple example of distributing factorial across multiple workers, in localhost
+import tensorflow as tf
+from tensorflow.python.framework import function
+
+cluster = tf.train.ClusterSpec({"local": ["localhost:2222", "localhost:2223"]})
+
+fac = function.Declare("Fac", [("n", tf.int32)], [("ret", tf.int32)])
+
+@function.Defun(tf.int32, func_name="Fac", out_names=["ret"])
+def FacImpl(n):
+
+	def f1(): 
+		with tf.device("/job:local/replica:0/task:0/device:CPU:0"):
+			ret = tf.constant(1)
+		return ret
+	def f2(): 
+		with tf.device("/job:local/replica:0/task:1/device:CPU:0"):
+			ret = n * fac(n - 1)
+		return ret
+
+	with tf.device("/job:local/replica:0/task:1/device:CPU:0"):
+		pred = tf.less_equal(n, 1)
+
+	return tf.cond(pred, f1, f2)
+
+FacImpl.add_to_graph(tf.get_default_graph())
+
+n = tf.placeholder(tf.int32, shape=[])
+result = fac(n)
+
+with tf.Session("grpc://localhost:2222") as sess:
+	print(sess.run(res, feed_dict={n: 5}))
+
+\end{lstlisting}
+\chapter{PYTHON TEST CASES}
+
+\begin{lstlisting}
+# Fibonacci
+import tensorflow as tf
+from tensorflow.python.framework import function
+
+fib = function.Declare("Fib", [("n", tf.int32)], [("ret", tf.int32)])
+
+@function.Defun(tf.int32, func_name="Fib", out_names=["ret"])
+def FibImpl(n):
+	return tf.cond(tf.less_equal(n, 1),
+		lambda: tf.constant(1),
+		lambda: fib(n-1) + fib(n-2))
+
+FibImpl.add_to_graph(tf.get_default_graph())
+
+n = tf.placeholder(tf.int32, shape=[])
+x = fib(n)
+
+with tf.Session() as sess:
+	print(sess.run(x, feed_dict={n: 24}))
+
+\end{lstlisting}
+
+\begin{lstlisting}
+# Ackermann
+import tensorflow as tf
+from tensorflow.python.framework import function
+
+ack = function.Declare("Ack", [("m",tf.int32),("n",tf.int32)],[("ret",tf.int32)])
+
+@function.Defun(tf.int32, tf.int32, func_name="Ack", out_names=["ret"])
+def AckImpl(m,n):
+	def f1(): 
+		return n + 1
+	def f2():
+		def ff1():
+			return ack(m-1,1)
+		def ff2():
+			return ack(m-1, ack(m, n-1))
+
+		return tf.cond(tf.equal(n, 0), ff1, ff2)
+	return tf.cond(tf.equal(m, 0), f1, f2)
+AckImpl.add_to_graph(tf.get_default_graph())
+
+n = tf.placeholder(tf.int32, shape=[])
+m = tf.placeholder(tf.int32, shape=[])
+res = ack(m,n)
+
+with tf.Session() as sess:
+	print(sess.run(res, feed_dict={m:2, n:3}))
+\end{lstlisting}
+
+\begin{lstlisting}
+# Primes
+import tensorflow as tf
+from tensorflow.python.framework import function
+
+primes = function.Declare("primes", [("x", tf.int32)], [("ret", tf.int32)])
+PrimePlus  = function.Declare("PrimePlus",  
+							[("n", tf.int32), ("i", tf.int32)], [("ret", tf.int32)])
+PrimeMinus = function.Declare("PrimeMinus", 
+							[("n", tf.int32), ("i", tf.int32)], [("ret", tf.int32)])
+test = function.Declare("test",[("n",tf.int32),("i",tf.int32)],[("ret",tf.bool)])
+
+@function.Defun(tf.int32, func_name="primes", out_names=["ret"])
+def PrimesImpl(n):
+	return tf.cond(tf.less_equal(n, 0),
+		lambda: 2,
+		lambda: tf.cond(tf.equal(n, 1),
+			lambda: 3,
+			lambda: PrimeMinus(n-2,1)))
+PrimesImpl.add_to_graph(tf.get_default_graph())
+
+@function.Defun(tf.int32, tf.int32, func_name="PrimeMinus", out_names=["ret"])
+def FindPrimeMinusImpl(n,i):
+	return tf.cond(test(6*i-1, 1),
+		lambda: tf.cond(tf.equal(n, 0),
+			lambda: 6*i-1,
+			lambda: PrimePlus(n-1,i)),
+		lambda: PrimePlus(n,i))
+FindPrimeMinusImpl.add_to_graph(tf.get_default_graph())
+
+@function.Defun(tf.int32, tf.int32, func_name="PrimePlus", out_names=["ret"])
+def FindPrimePlusImpl(n,i):
+	return tf.cond(test(6*i-1, 1),
+		lambda: tf.cond(tf.equal(n, 0),
+			lambda: 6*i-1,
+			lambda: PrimeMinus(n-1,i+1)),
+		lambda: PrimeMinus(n,i+1))
+FindPrimePlusImpl.add_to_graph(tf.get_default_graph())
+
+@function.Defun(tf.int32, tf.int32, func_name="test", out_names=["ret"])
+def TestPrimeImpl(n,i):
+	return tf.cond(tf.greater((6*i-1)*(6*i-1), n),
+		lambda: True,
+		lambda: tf.cond(tf.equal(tf.mod(n, (6*i-1)), 0),
+			lambda: False,
+			lambda: tf.cond(tf.equal(tf.mod(n, (6*i-1)), 0),
+				lambda: False, lambda: test(n, i+1))))
+TestPrimeImpl.add_to_graph(tf.get_default_graph())
+
+n = tf.placeholder(tf.int32, shape=[])
+with tf.Session() as sess:
+	print(sess.run(primes(n), feed_dict={n:7500}))
+
+
+\end{lstlisting}
+
+\begin{lstlisting}
+# Takeuchi
+import tensorflow as tf
+from tensorflow.python.framework import function
+
+tak = function.Declare("tak", [("x", tf.int32), ("y", tf.int32), ("z", tf.int32)], [("ret", tf.int32)])
+
+@function.Defun(tf.int32, tf.int32, tf.int32, func_name="Tak", out_names=["ret"])
+def TakImpl(x,y,z):
+	return tf.cond(tf.less(y, x),
+        lambda: tak(tak(x-1,y,z), tak(y-1,z,x), tak(z-1,x,y)),
+		lambda: z)
+
+TakImpl.add_to_graph(tf.get_default_graph())
+
+x = tf.placeholder(tf.int32, shape=[])
+y = tf.placeholder(tf.int32, shape=[])
+z = tf.placeholder(tf.int32, shape=[])
+res = tak(x,y,z)
+
+with tf.Session() as sess:
+	print(sess.run(res, feed_dict={x:24, y:16, z:8}))
+\end{lstlisting}
+
+
+\end{appendix}
 % manually include the bibliography
 \bibliographystyle{plain}
 \bibliography{references}
