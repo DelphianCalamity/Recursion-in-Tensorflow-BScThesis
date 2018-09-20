@@ -176,6 +176,17 @@ headsep=0.5cm,footskip=0.75cm,
 %
 \usepackage{listings}
 \usepackage{color}
+\usepackage{chngcntr}
+\counterwithout{figure}{chapter}
+\counterwithout{table}{chapter}
+
+\usepackage{caption}
+\usepackage{fontspec}
+\setsansfont{Arial}
+
+\DeclareCaptionFont{Arial}{\fontsize{10pt}{12pt}\mdseries\bfseries}
+\usepackage[font=Arial,labelfont=bf]{caption}
+
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -549,6 +560,21 @@ publications}\gdef\@lopfileinternal{#1}}
   \clearpage
 }
 
+
+\let\oldthebibliography\thebibliography
+\let\endoldthebibliography\endthebibliography
+\renewenvironment{thebibliography}[1]{
+  \begin{oldthebibliography}{#1}
+    \setlength{\itemsep}{0em}
+    \setlength{\parskip}{0em}
+    \footnotesize
+}
+{
+  \end{oldthebibliography}
+}
+
+\addto{\captionsenglish}{\renewcommand{\bibname}{References}}
+
 %
 % Configure the frontmatter page
 %
@@ -585,6 +611,7 @@ publications}\gdef\@lopfileinternal{#1}}
     \fi
 
     % table of contents
+
     % add TOC as bookmark
     \addtocontents{toc}{\protect{\pdfbookmark[0]{CONTENTS}{toc}}}
     \tableofcontents
@@ -643,7 +670,7 @@ publications}\gdef\@lopfileinternal{#1}}
   {\parindent \z@ \raggedright \normalfont
     \interlinepenalty\@M
     \ifappendixstarted
-       \large \centering \bfseries APPENDIX \thechapter. \MakeTextUppercase{#1}
+       \large \centering \bfseries ANNEX \thechapter. \MakeTextUppercase{#1}
     \else
 	   \large \centering \bfseries \thechapter. \MakeTextUppercase{#1}
     \fi

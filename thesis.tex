@@ -138,6 +138,7 @@ The objective of the task that was initially proposed to me, as a subject for th
 
 \mainmatter
 
+
 % add main chapters (should be given in capital letters)
 \chapter{INTRODUCTION}
     \section{Main Concept}
@@ -720,7 +721,7 @@ Also, as we already mentioned, static approach has better potential in distribut
 \begin{tabular}{ |p{3cm}||p{2cm}|p{3cm}|p{3cm}||p{2cm}|  }
 
  \hline
- \multicolumn{5}{|c|}{Fibonacci} \\
+ \multicolumn{5}{|c|}{\textbf{\footnotesize Fibonacci}} \\
  \hline
  	& Result &Static (s)&Dynamic (s)&Speeding\\
  \hline
@@ -747,7 +748,7 @@ Also, as we already mentioned, static approach has better potential in distribut
 \begin{tabular}{ |p{3cm}||p{2cm}|p{3cm}|p{3cm}||p{2cm}|  }
 
  \hline
- \multicolumn{5}{|c|}{Ackermann} \\
+ \multicolumn{5}{|c|}{\textbf{\footnotesize Ackermann}} \\
  \hline
  	& Result &Static (s)&Dynamic (s)&Speeding\\
  \hline
@@ -768,7 +769,7 @@ Also, as we already mentioned, static approach has better potential in distribut
 \begin{tabular}{ |p{3cm}||p{2cm}|p{3cm}|p{3cm}||p{2.5cm}|  }
 
  \hline
- \multicolumn{5}{|c|}{Takeuchi} \\
+ \multicolumn{5}{|c|}{\textbf{\footnotesize Takeuchi}} \\
  \hline
  	& Result &Static (s)&Dynamic (s)&Speeding\\
  \hline
@@ -788,7 +789,7 @@ Also, as we already mentioned, static approach has better potential in distribut
 \begin{tabular}{ |p{3cm}||p{2cm}|p{3cm}|p{3cm}||p{2cm}|  }
 
  \hline
- \multicolumn{5}{|c|}{Primes} \\
+ \multicolumn{5}{|c|}{\textbf{\footnotesize Primes}} \\
  \hline
  	& Result &Static (s)&Dynamic (s)&Speeding\\
  \hline
@@ -843,17 +844,16 @@ The content of this bachelor thesis is supposed to be more dataflow-oriented. Th
 % abbreviations table
 \abbreviations
 \begin{center}
-	\renewcommand{\arraystretch}{1.5}
-	\begin{longtable}{ l @{\qquad} l }
-	\toprule
+	\begin{tabularx}{\textwidth}{|p{3cm}|p{12.615cm}|}
+	\hline
 	NKUA    & National and Kapodistrian University of Athens\\
 	NCSR-D & National Centre for Scientific Research-Demokritos \\
 	PC & Program Counter \\
 	CPU & Central Processing Unit\\
 	GPU & Graphic Processing Unit\\
 	TPU & Tensor Processing Unit\\
-	\bottomrule
-	\end{longtable}
+	\hline
+	\end{tabularx}
 \end{center}
 
 % appendix
@@ -863,7 +863,7 @@ The content of this bachelor thesis is supposed to be more dataflow-oriented. Th
 
 % add appendix line to ToC
 \phantomsection
-\addcontentsline{toc}{chapter}{APPENDICES}
+\addcontentsline{toc}{chapter}{ANNEX}
 
 \chapter{FACTORIAL DISTRIBUTED}
 
@@ -1042,6 +1042,6 @@ with tf.Session() as sess:
 \bibliographystyle{plain}
 \bibliography{references}
 % include it also in ToC (do sth on your own)
-\addcontentsline{toc}{chapter}{BIBLIOGRAPHY}
+\addcontentsline{toc}{chapter}{REFERENCES}
 
 \end{document}
